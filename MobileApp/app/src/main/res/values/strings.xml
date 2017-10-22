@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">MobileApp</string>
+    <string name="auth_failed">Authentication Failed; Please try again.</string>
+    <string name="auth_success">Authenticated; Welcome.</string>
+    <string name="login_button">Login</string>
+    <string name="new_user_button">Create Account</string>
+    <string name="anon_login_button">Guest Login</string>
+    <string name="new_account_failure">Error making new Account...Please try again.</string>
 </resources>
