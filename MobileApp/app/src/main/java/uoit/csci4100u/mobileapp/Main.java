@@ -5,8 +5,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import net.rithms.riot.api.ApiConfig;
+import net.rithms.riot.api.RiotApi;
+import net.rithms.riot.api.RiotApiException;
+import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
+import net.rithms.riot.constant.Platform;
 
 public class Main extends AppCompatActivity {
+    static ApiConfig config = new ApiConfig().setKey("RGAPI-1da05fb7-ed0d-4922-8e43-b1ece25ad65a");
+    static RiotApi riot_api = new RiotApi(config);
     static final String TAG = "Main.java";
     static final int SUCCESS = 1;
     static final int FAILURE = 0;
