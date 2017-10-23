@@ -5,5 +5,8 @@
     <string name="login_button">Login</string>
     <string name="new_user_button">Create Account</string>
     <string name="anon_login_button">Guest Login</string>
-    <string name="new_account_failure">Error making new Account...Please try again.</string>
+    <string name="new_account_failure">Error making new Account…Please try again.</string>
+    <string name="async_task">Network is working…</string>
+    <string name="error_summ_name">Please Enter a Valid summoner name</string>
+    <string name="cant_find_name">Can\'t find that Summoner on Riot\'s server…</string>
 </resources>

@@ -6,9 +6,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
+
+import org.w3c.dom.Text;
 
 import static uoit.csci4100u.mobileapp.Main.riot_api;
 
@@ -16,12 +19,14 @@ public class SetSummoner extends AppCompatActivity {
     static final String REGEX = "^[0-9/\\/\\p{L} _\\/\\/.]+$";
     static final String TAG = "setsummoner.java";
     EditText summonerField;
+    TextView summ_info;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.set_summoner);
         setResult(Main.FAILURE);
         summonerField = (EditText) findViewById(R.id.summoner_box);
+        summ_info = (TextView) findViewById(R.id.summ_info);
     }
 
     //false means not empty true means nothing in the string
@@ -35,9 +40,14 @@ public class SetSummoner extends AppCompatActivity {
             input = summonerField.getText().toString().trim();
             if(input.matches(REGEX)){
                 Log.d(TAG, "regex match");
+                summ_info.setText(R.string.async_task);
                 new networkTask().execute(input);
-            } else {Log.d(TAG, "regex fail");}
+            } else {
+                summ_info.setText(R.string.error_summ_name);
+                Log.d(TAG, "regex fail");
+            }
         } else {
+            summ_info.setText(R.string.error_summ_name);
             Log.d(TAG, "error empty input field");
         }
     }
@@ -49,7 +59,9 @@ public class SetSummoner extends AppCompatActivity {
             Log.d("async task", "Started");
             try {
                 summoner = riot_api.getSummonerByName(Platform.NA, strings[0]);
-            } catch (net.rithms.riot.api.RiotApiException e){Log.d(TAG, e.toString());}
+            } catch (net.rithms.riot.api.RiotApiException e){
+                Log.d(TAG, e.toString());
+            }
             return null;
         }
 
@@ -61,12 +73,24 @@ public class SetSummoner extends AppCompatActivity {
     }
 
     private void testVomitSummoner(Summoner x){
-        String localTAG = "api reply: ";
-        Log.d(localTAG, "name: " + x.getName());
-        Log.d(localTAG, "account id: " + x.getAccountId());
-        Log.d(localTAG, "id: " + x.getId());
-        Log.d(localTAG, "level: " + x.getSummonerLevel());
-        Log.d(localTAG, "last modified: " + x.getRevisionDate());
-    }
+        if(x != null) {
+//            String localTAG = "api reply";
+//            Log.d(localTAG, "name: " + x.getName());
+//            Log.d(localTAG, "account id: " + x.getAccountId());
+//            Log.d(localTAG, "id: " + x.getId());
+//            Log.d(localTAG, "level: " + x.getSummonerLevel());
+//            Log.d(localTAG, "last modified: " + x.getRevisionDate());
 
+            StringBuilder retString = new StringBuilder();
+            retString.append("Name: " + x.getName() + "\n");
+            retString.append("Account ID: " + x.getAccountId() + "\n");
+            retString.append("ID: " + x.getId() + "\n");
+            retString.append("Level: " + x.getSummonerLevel() + "\n");
+            retString.append("Last Modified: " + x.getRevisionDate() + "\n");
+
+            summ_info.setText(retString.toString());
+        } else {
+            summ_info.setText(R.string.cant_find_name);
+        }
+    }
 }
