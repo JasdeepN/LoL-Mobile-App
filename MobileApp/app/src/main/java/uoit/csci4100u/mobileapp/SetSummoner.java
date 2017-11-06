@@ -16,6 +16,7 @@ import org.w3c.dom.Text;
 import static uoit.csci4100u.mobileapp.Main.riot_api;
 
 public class SetSummoner extends AppCompatActivity {
+    //regex for checking valid summoner names
     static final String REGEX = "^[0-9/\\/\\p{L} _\\/\\/.]+$";
     static final String TAG = "setsummoner.java";
     EditText summonerField;
@@ -81,14 +82,11 @@ public class SetSummoner extends AppCompatActivity {
 //            Log.d(localTAG, "level: " + x.getSummonerLevel());
 //            Log.d(localTAG, "last modified: " + x.getRevisionDate());
 
-            StringBuilder retString = new StringBuilder();
-            retString.append("Name: " + x.getName() + "\n");
-            retString.append("Account ID: " + x.getAccountId() + "\n");
-            retString.append("ID: " + x.getId() + "\n");
-            retString.append("Level: " + x.getSummonerLevel() + "\n");
-            retString.append("Last Modified: " + x.getRevisionDate() + "\n");
+            String retString = "Name: " + x.getName() + "\nAccount ID: " + x.getAccountId() +
+                    "\nID: " + x.getId() + "\nLevel: " + x.getSummonerLevel() + "\nLast Modified:" +
+                    x.getRevisionDate();
 
-            summ_info.setText(retString.toString());
+            summ_info.setText(retString);
         } else {
             summ_info.setText(R.string.cant_find_name);
         }

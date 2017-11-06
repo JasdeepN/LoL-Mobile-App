@@ -30,5 +30,12 @@
             android:layout_height="wrap_content"
             android:onClick="onSetSummonerClicked"
             android:text="temp set button"/>
+
+        <Button
+            android:id="@+id/temp_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="temp_click"
+            android:text="temp_champ"/>
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

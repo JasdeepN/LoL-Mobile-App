@@ -11,8 +11,11 @@ import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
 
+import uoit.csci4100u.mobileapp.util.NetworkUtil;
+
 public class Main extends AppCompatActivity {
-    static ApiConfig config = new ApiConfig().setKey("RGAPI-1da05fb7-ed0d-4922-8e43-b1ece25ad65a");
+    //temp dev key change daily
+    static ApiConfig config = new ApiConfig().setKey("RGAPI-f4491519-5480-4a7e-95d8-643d003e69b3");
     static RiotApi riot_api = new RiotApi(config);
     static final String TAG = "Main.java";
     static final int SUCCESS = 1;
@@ -29,6 +32,13 @@ public class Main extends AppCompatActivity {
         Intent setSummIntent = new Intent(Main.this, SetSummoner.class);
         startActivityForResult(setSummIntent, REQUEST_SET_SUMMONER);
     }
+
+    public void temp_click(View v){
+//        Intent temp_intent = new Intent(Main.this, Champions.class);
+//        startActivity(temp_intent);
+        Log.i(TAG, new NetworkUtil().getConnectivityStatusString(getBaseContext()));
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

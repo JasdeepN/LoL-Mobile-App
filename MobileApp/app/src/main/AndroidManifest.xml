@@ -2,6 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="uoit.csci4100u.mobileapp">
 
+    <!--Permissions-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+
+    <!--Application Manifest stuff-->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/icon"
@@ -9,6 +14,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <!--Starts the login activity before going to main-->
         <activity android:name=".Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -22,6 +28,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".SetSummoner">
+        </activity>
+        <activity android:name=".Champions">
         </activity>
     </application>
 
