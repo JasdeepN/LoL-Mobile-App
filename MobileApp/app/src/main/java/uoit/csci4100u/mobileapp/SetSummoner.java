@@ -11,10 +11,9 @@ import android.widget.TextView;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
 
-import org.w3c.dom.Text;
-
 import static uoit.csci4100u.mobileapp.Main.riot_api;
 
+//TODO: set the summoner ID globally (probably)
 public class SetSummoner extends AppCompatActivity {
     //regex for checking valid summoner names
     static final String REGEX = "^[0-9/\\/\\p{L} _\\/\\/.]+$";

@@ -7,16 +7,15 @@ import android.util.Log;
 
 
 import net.rithms.riot.api.endpoints.static_data.dto.ChampionList;
-import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
 import net.rithms.riot.api.endpoints.static_data.dto.*;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import static uoit.csci4100u.mobileapp.Main.riot_api;
 
+//TODO: this works but need to change so the api is not being called on each request
 public class Champions extends AppCompatActivity {
     final String TAG = "champion.java";
     ChampionList champions;

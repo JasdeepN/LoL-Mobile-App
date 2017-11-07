@@ -3,7 +3,12 @@
           package="uoit.csci4100u.mobileapp">
 
     <!--Permissions-->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+    <!--don't have to explicitly get this anymore-->
+    <uses-permission android:name="android.permission.INTERNET"/>
 
 
     <!--Application Manifest stuff-->
@@ -31,6 +36,8 @@
         </activity>
         <activity android:name=".Champions">
         </activity>
+
+        <service android:name=".util.LocationUtil"/>
     </application>
 
 </manifest>
