@@ -9,6 +9,8 @@ import android.util.Log;
 
 /**
  * Created by jasdeep on 2017-11-06.
+ *
+ * Checks and asks for permissions for FINE_LOCATION and NETWORK_STATE
  */
 
 

@@ -12,14 +12,25 @@ import net.rithms.riot.api.RiotApi;
 import uoit.csci4100u.mobileapp.util.LocationUtil;
 import uoit.csci4100u.mobileapp.util.PermissionChecker;
 
+/**
+ * Main method for App, handles setting up and receiving Activities/Results
+ *
+ * currently uses temp development key for Riot API - check to see if key is still valid before
+ * changing anything
+ *
+ * Uses util Class PermissionChecker to check for android permissions
+ * Uses util Class LocationUtil to listen for and respond to GPS changes
+ */
 public class Main extends AppCompatActivity {
     //temp dev key change daily
-    static ApiConfig config = new ApiConfig().setKey("RGAPI-f4491519-5480-4a7e-95d8-643d003e69b3");
-    static RiotApi riot_api = new RiotApi(config);
+    static final String API_KEY = "RGAPI-c4fd5a72-66df-43c1-94c7-1634213aca85";
+    static ApiConfig config = new ApiConfig().setKey(API_KEY);
+    static public RiotApi riot_api = new RiotApi(config);
     static final String TAG = "Main.java";
+    static final int REQUEST_SET_SUMMONER = 2;
     static final int SUCCESS = 1;
     static final int FAILURE = 0;
-    static final int REQUEST_SET_SUMMONER = 2;
+    static final int CANCEL = -1;
 
     //New Location util
     private LocationUtil locUtil;
