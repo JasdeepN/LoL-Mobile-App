@@ -9,4 +9,9 @@
     <string name="async_task">Network is working…</string>
     <string name="error_summ_name">Please Enter a Valid summoner name</string>
     <string name="cant_find_name">Can\'t find that Summoner on Riot\'s server…</string>
+    <string name="finish">Finish</string>
+    <string name="lbl_set">Set Your Summoner Successfully</string>
+    <string name="lbl_set_fail">You must set your Summoner to use features.</string>
+    <string name="already_set">Your Summoner is already set! Try something else.</string>
+
 </resources>

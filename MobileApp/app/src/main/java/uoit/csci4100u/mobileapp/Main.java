@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import net.rithms.riot.api.ApiConfig;
 import net.rithms.riot.api.RiotApi;
@@ -87,8 +88,12 @@ public class Main extends AppCompatActivity {
 
 
     public void onSetSummonerClicked(View v) {
-        Intent setSummIntent = new Intent(Main.this, SetSummoner.class);
-        startActivityForResult(setSummIntent, REQUEST_SET_SUMMONER);
+        if (!acquired) {
+            Intent setSummIntent = new Intent(Main.this, SetSummoner.class);
+            startActivityForResult(setSummIntent, REQUEST_SET_SUMMONER);
+        } else {
+            Toast.makeText(this, R.string.already_set, Toast.LENGTH_SHORT).show();
+        }
     }
 
     //TODO: update this so it makes sense
@@ -109,8 +114,10 @@ public class Main extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SET_SUMMONER && resultCode == SUCCESS) {
+            Toast.makeText(this, R.string.lbl_set, Toast.LENGTH_SHORT).show();
         } else if (resultCode == FAILURE) {
             Log.d(TAG, "Error");
+            Toast.makeText(this, R.string.lbl_set_fail, Toast.LENGTH_SHORT).show();
         } else {
             Log.d(TAG, "other result");
         }

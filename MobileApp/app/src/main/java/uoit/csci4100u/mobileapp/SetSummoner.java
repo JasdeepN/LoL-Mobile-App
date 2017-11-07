@@ -86,9 +86,6 @@ public class SetSummoner extends AppCompatActivity {
      * asynchronous call to the Riot API
      *
      * @param v current Android view
-     *          <p>
-     *          TODO: NetworkTask will eventually become an interface meaning doInBackground() and
-     *          onPostExecute() will have to be implemented
      */
     public void getSummonerName(View v) {
         networkTask = new RiotNetworkTask();
@@ -113,16 +110,25 @@ public class SetSummoner extends AppCompatActivity {
                 }
 
                 printSummonerToScreen(Main.getSummoner());
+                setResult(Main.SUCCESS);
             } else {
                 summ_info.setText(R.string.error_summ_name);
                 Log.d(TAG, "regex fail");
+                setResult(Main.FAILURE);
             }
         } else {
             summ_info.setText(R.string.error_summ_name);
             Log.d(TAG, "error empty input field");
+            setResult(Main.FAILURE);
         }
     }
 
+    /**
+     * Finish the activity
+     */
+    public void finish(View v){
+        finish();
+    }
     //TODO: remove this when done testing
     //    public static void VomitSummoner(Summoner summoner) {
     //        String localTAG = "api reply";
