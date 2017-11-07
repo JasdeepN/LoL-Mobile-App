@@ -8,6 +8,7 @@ import android.view.View;
 
 import net.rithms.riot.api.ApiConfig;
 import net.rithms.riot.api.RiotApi;
+import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 import uoit.csci4100u.mobileapp.util.LocationUtil;
 import uoit.csci4100u.mobileapp.util.PermissionChecker;
@@ -31,6 +32,10 @@ public class Main extends AppCompatActivity {
     static final int SUCCESS = 1;
     static final int FAILURE = 0;
     static final int CANCEL = -1;
+    public static boolean acquired;
+
+    //the users summoner info
+    protected static Summoner uSummoner;
 
     //New Location util
     private LocationUtil locUtil;
@@ -62,7 +67,25 @@ public class Main extends AppCompatActivity {
         super.onStop();
     }
 
-    //TODO: set summoner globally so other methods can use unique summoner ID
+    /**
+     * Getter for methods that need the users summoner info
+     *
+     * @return Summoner object
+     */
+    public static Summoner getSummoner() {
+        return uSummoner;
+    }
+
+    /**
+     * Setter for uSummoner
+     *
+     * @param you Summoner object belonging to the user
+     */
+    public static void setSummoner(Summoner you) {
+        Main.uSummoner = you;
+    }
+
+
     public void onSetSummonerClicked(View v) {
         Intent setSummIntent = new Intent(Main.this, SetSummoner.class);
         startActivityForResult(setSummIntent, REQUEST_SET_SUMMONER);
