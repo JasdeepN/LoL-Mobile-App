@@ -16,11 +16,11 @@ import android.util.Log;
 
 //gets permissions for fine Location and network state
 public class PermissionChecker {
-    static final String TAG = "permission checker";
-    static final int REQUEST_GPS = 0;
-    static final int REQUEST_NET = 1;
-    Context context;
-    Activity activity;
+    private static final String TAG = "permission checker";
+    private static final int REQUEST_GPS = 0;
+    private static final int REQUEST_NET = 1;
+    private Context context;
+    private Activity activity;
 
     public PermissionChecker(Context con, Activity act) {
         this.context = con;
