@@ -24,7 +24,6 @@ public class DatabaseHelperUtil implements DatabaseReference.CompletionListener 
     //reference to Firebase Realtime Database
     private DatabaseReference mDatabaseRef;
     static final String TAG = "DatabaseUtil.java";
-    private Summoner summoner;
 
     public DatabaseHelperUtil() {
         DatabaseReference mDatabaseRoot = FirebaseDatabase.getInstance().getReference();
