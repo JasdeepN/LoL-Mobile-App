@@ -1,15 +1,8 @@
 package uoit.csci4100u.mobileapp.util;
 
 import android.os.AsyncTask;
-import android.util.Log;
-
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
-
-import uoit.csci4100u.mobileapp.Main;
-import uoit.csci4100u.mobileapp.SetSummoner;
-
-import static uoit.csci4100u.mobileapp.Main.riot_api;
 
 /**
  * Created by jasdeep on 2017-11-06.

@@ -62,7 +62,9 @@ public class Login extends AppCompatActivity {
     }
 
 
-    //Creates toast with google play services version, useful for troubleshooting
+    /**
+     * Creates toast with google play services version, useful for troubleshooting
+     */
     private void showGooglePlayServicesStatus() {
         GoogleApiAvailability apiAvail = GoogleApiAvailability.getInstance();
         int errorCode = apiAvail.isGooglePlayServicesAvailable(this);
@@ -72,7 +74,11 @@ public class Login extends AppCompatActivity {
     }
 
 
-    //onClick method for logging in normally, uses the signIn() method
+    /**
+     * onClick method for logging in normally, uses the signIn() method
+     *
+     * @param v current Android view
+     */
     public void onLoginClick(View v) {
       sendSignInCredentials();
     }
@@ -87,12 +93,15 @@ public class Login extends AppCompatActivity {
     }
 
 
-    //onClick method for creating account, uses the createAccount() method, and input from EditText
-    //if either username or pass is empty this does nothing
+    /**
+     * onClick method for creating account, uses the createAccount() method, and input from EditText
+     * if either username or pass is empty this does nothing
+     *
+     * @param v current Android view
+     */
     public void onCreateClick(View v) {
         EditText email = (EditText) findViewById(R.id.email_field);
         EditText pass = (EditText) findViewById(R.id.pass_field);
-        String email_str, pass_str;
 
         if(!isEmpty(email) && !isEmpty(pass)) {
             createAccount(email.getText().toString(), pass.getText().toString());
@@ -100,37 +109,20 @@ public class Login extends AppCompatActivity {
         }
     }
 
-    //checks if edit text field is empty
+    /**
+     * checks if edit text field is empty
+     *
+     * @param etText EditTextField to be checked
+     * @return True if the field is empty and False if it is
+     */
     private boolean isEmpty(EditText etText) {
         return etText.getText().toString().trim().length() == 0;
     }
 
 
-    //onClick method for logging in anonymously
-    public void onAnonLoginClick(View v) {
-        mAuth.signInAnonymously()
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInAnonymously:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            Toast.makeText(getBaseContext(), R.string.auth_success, Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(Login.this, Main.class);
-                            startActivityForResult(intent, 1);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInAnonymously:failure", task.getException());
-                            Toast.makeText(getBaseContext(), R.string.auth_failed,
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-
-    }
-
-
+    /**
+     * Gets the current Firebase user
+     */
     private void getCurrentUser() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
@@ -147,6 +139,12 @@ public class Login extends AppCompatActivity {
     }
 
 
+    /**
+     * Sign in method used for Firebase authentication
+     *
+     * @param email User's email
+     * @param password User's password
+     */
     public void signIn(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -164,7 +162,10 @@ public class Login extends AppCompatActivity {
                         } else {
                             Toast.makeText(getBaseContext(), R.string.auth_success, Toast.LENGTH_SHORT)
                                     .show();
+
                             Intent intent = new Intent(Login.this, Main.class);
+                            intent.putExtra("UUID", FirebaseAuth.getInstance().getCurrentUser()
+                                    .getUid());
                             startActivityForResult(intent, 1);
                         }
 
@@ -173,6 +174,12 @@ public class Login extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Creates new Firebase user
+     *
+     * @param email New user's email
+     * @param password New user's password
+     */
     private void createAccount(String email, String password){
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {

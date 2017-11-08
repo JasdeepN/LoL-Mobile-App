@@ -32,8 +32,9 @@ tools:layout_editor_absoluteX="0dp">
         android:ems="10"
         android:hint="Email"
         android:inputType="textEmailAddress"
+        android:text="admin@admin.com"
         tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp" />
+        tools:layout_editor_absoluteY="0dp"/>
 
     <EditText
         android:id="@+id/pass_field"
@@ -45,8 +46,9 @@ tools:layout_editor_absoluteX="0dp">
         android:ems="10"
         android:hint="Password"
         android:inputType="textPassword"
+        android:text="admin1"
         tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp" />
+        tools:layout_editor_absoluteY="0dp"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -75,13 +77,6 @@ tools:layout_editor_absoluteX="0dp">
             android:onClick="onCreateClick"
             android:text="@string/new_user_button"/>
 
-        <Button
-            android:id="@+id/anon_login_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:onClick="onAnonLoginClick"
-            android:text="@string/anon_login_button"/>
     </LinearLayout>
 
 </RelativeLayout>

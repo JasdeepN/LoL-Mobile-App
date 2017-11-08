@@ -11,6 +11,7 @@ import net.rithms.riot.api.ApiConfig;
 import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
+import uoit.csci4100u.mobileapp.util.DatabaseHelperUtil;
 import uoit.csci4100u.mobileapp.util.LocationUtil;
 import uoit.csci4100u.mobileapp.util.PermissionChecker;
 
@@ -22,10 +23,12 @@ import uoit.csci4100u.mobileapp.util.PermissionChecker;
  *
  * Uses util Class PermissionChecker to check for android permissions
  * Uses util Class LocationUtil to listen for and respond to GPS changes
+ * Uses Abstract class NetworkTask which contains methods needed for Riot's API calls
  */
 public class Main extends AppCompatActivity {
-    //temp dev key change daily
-    static final String API_KEY = "RGAPI-c4fd5a72-66df-43c1-94c7-1634213aca85";
+    //temp dev key
+    static final String API_KEY = "RGAPI-61d7bd4d-a1b7-466c-bb7a-4c2d2d1385f2";
+    static String UUID ="";
     static ApiConfig config = new ApiConfig().setKey(API_KEY);
     static public RiotApi riot_api = new RiotApi(config);
     static final String TAG = "Main.java";
@@ -34,6 +37,7 @@ public class Main extends AppCompatActivity {
     static final int FAILURE = 0;
     static final int CANCEL = -1;
     public static boolean acquired;
+    Bundle extras;
 
     //the users summoner info
     protected static Summoner uSummoner;
@@ -44,6 +48,9 @@ public class Main extends AppCompatActivity {
     //permission checker class
     private PermissionChecker checker;
 
+    //database helper
+    private DatabaseHelperUtil dbHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,12 +59,16 @@ public class Main extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+        extras = getIntent().getExtras();
+        UUID = extras.getString("UUID");
         //checks for location permissions
         checker = new PermissionChecker(getBaseContext(), this);
         checker.getPermissions();
 
         //starts the location listener
         locUtil = new LocationUtil(this);
+
+        dbHelper = new DatabaseHelperUtil();
 
         super.onStart();
     }
@@ -86,6 +97,12 @@ public class Main extends AppCompatActivity {
         Main.uSummoner = you;
     }
 
+    //TODO: update this so it makes sense
+    public void temp_click(View v) {
+        Intent temp_intent = new Intent(Main.this, Champions.class);
+        startActivity(temp_intent);
+    }
+
 
     public void onSetSummonerClicked(View v) {
         if (!acquired) {
@@ -94,12 +111,6 @@ public class Main extends AppCompatActivity {
         } else {
             Toast.makeText(this, R.string.already_set, Toast.LENGTH_SHORT).show();
         }
-    }
-
-    //TODO: update this so it makes sense
-    public void temp_click(View v) {
-        Intent temp_intent = new Intent(Main.this, Champions.class);
-        startActivity(temp_intent);
     }
 
     //TODO: remove this, this is a temporary onCLick method
@@ -115,6 +126,8 @@ public class Main extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_SET_SUMMONER && resultCode == SUCCESS) {
             Toast.makeText(this, R.string.lbl_set, Toast.LENGTH_SHORT).show();
+            Log.d(TAG, "write to DB");
+            dbHelper.addUser(UUID, uSummoner);
         } else if (resultCode == FAILURE) {
             Log.d(TAG, "Error");
             Toast.makeText(this, R.string.lbl_set_fail, Toast.LENGTH_SHORT).show();
