@@ -1,7 +1,5 @@
 package uoit.csci4100u.mobileapp;
 
-import android.content.Context;
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,7 +8,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
@@ -18,16 +15,22 @@ import uoit.csci4100u.mobileapp.util.NetworkTask;
 
 import static uoit.csci4100u.mobileapp.Main.riot_api;
 
-//TODO: set the summoner ID globally (probably)
+/**
+ * Set summoner is called only when the users Unique User ID (UUID) is not found in the database
+ *
+ * Handles all methods for setting up new Summoner
+ * Ensures summoner name matches REGEX before using Async task to query Riot API
+ * Uses extended NetworkTask -> RiotAPIGetSummoner
+ */
 public class SetSummoner extends AppCompatActivity {
     //regex for checking valid summoner names
     static final String REGEX = "^[0-9/\\/\\p{L} _\\/\\/.]+$";
     static final String TAG = "setsummoner.java";
     String[] locales;
-    RiotNetworkTask networkTask;
+    RiotAPIGetSummoner networkTask;
     String[] networkParam;
     EditText summonerField;
-    TextView summ_info;
+
     String region;
 
     @Override
@@ -37,7 +40,6 @@ public class SetSummoner extends AppCompatActivity {
 
         networkParam = new String[2];
         summonerField = (EditText) findViewById(R.id.summoner_box);
-        summ_info = (TextView) findViewById(R.id.summ_info);
         locales = getResources().getStringArray(R.array.Region_Array);
         setupSpinner();
     }
@@ -87,14 +89,13 @@ public class SetSummoner extends AppCompatActivity {
      *
      * @param v current Android view
      */
-    public void getSummonerName(View v) {
-        networkTask = new RiotNetworkTask();
+    public void finish(View v) {
+        networkTask = new RiotAPIGetSummoner();
         String input = "";
         if (!isEmpty(summonerField)) {
             input = summonerField.getText().toString().trim();
             if (input.matches(REGEX)) {
                 Log.d(TAG, "regex match");
-                summ_info.setText(R.string.async_task);
                 networkParam[1] = input;
 
                 //starts the async task without blocking
@@ -108,51 +109,15 @@ public class SetSummoner extends AppCompatActivity {
                 } catch (java.lang.InterruptedException i) {
                     Log.d(TAG, i.toString());
                 }
-
-                printSummonerToScreen(Main.getSummoner());
                 setResult(Main.SUCCESS);
+                finish();
             } else {
-                summ_info.setText(R.string.error_summ_name);
                 Log.d(TAG, "regex fail");
                 setResult(Main.FAILURE);
             }
         } else {
-            summ_info.setText(R.string.error_summ_name);
             Log.d(TAG, "error empty input field");
             setResult(Main.FAILURE);
-        }
-    }
-
-    /**
-     * Finish the activity
-     */
-    public void finish(View v){
-        finish();
-    }
-    //TODO: remove this when done testing
-    //    public static void VomitSummoner(Summoner summoner) {
-    //        String localTAG = "api reply";
-    //        Log.d(localTAG, "name: " + summoner.getName());
-    //        Log.d(localTAG, "account id: " + summoner.getAccountId());
-    //        Log.d(localTAG, "id: " + summoner.getId());
-    //        Log.d(localTAG, "level: " + summoner.getSummonerLevel());
-    //        Log.d(localTAG, "last modified: " + summoner.getRevisionDate());
-    //    }
-
-    /**
-     * temporary method that prints summoner info to device screen
-     *
-     * @param x the Summoner object to be printed
-     */
-    public void printSummonerToScreen(Summoner x) {
-        try {
-            String retString = "Name: " + x.getName() + "\nAccount ID: " + x.getAccountId() +
-                    "\nID: " + x.getId() + "\nLevel: " + x.getSummonerLevel() + "\nLast Modified:" +
-                    x.getRevisionDate();
-
-            this.summ_info.setText(retString);
-        } catch (NullPointerException e) {
-            this.summ_info.setText(R.string.cant_find_name);
         }
     }
 
@@ -162,7 +127,7 @@ public class SetSummoner extends AppCompatActivity {
      * Queries the Riot API if a valid Summoner name is provided and saves the returned Summoner
      * to the Summoner object in the Main method
      */
-    static class RiotNetworkTask extends NetworkTask{
+    static class RiotAPIGetSummoner extends NetworkTask{
     private Summoner summoner;
         //TODO: remove logs when done testing this method
         @Override
