@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="Enter Summoner"
+        android:hint="@string/enter_summoner"
         android:inputType="text"
         android:paddingTop="20dp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -31,25 +31,17 @@
         app:layout_constraintTop_toTopOf="@+id/summoner_box"/>
 
     <Button
-        android:id="@+id/button3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="getSummonerName"
-        android:text="Test the thing"
-        app:layout_constraintTop_toBottomOf="@+id/summoner_box"/>
-
-    <Button
         android:id="@+id/finish_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="finish"
         android:text="@string/finish"
-        app:layout_constraintLeft_toRightOf="@+id/button3"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/summoner_box"/>
 
     <TextView
         android:id="@+id/summ_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/button3"/>
+        app:layout_constraintTop_toBottomOf="@+id/summoner_box"/>
 </android.support.constraint.ConstraintLayout>
