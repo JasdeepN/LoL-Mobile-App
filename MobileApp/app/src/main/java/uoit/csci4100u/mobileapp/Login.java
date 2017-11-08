@@ -17,6 +17,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
+
 public class Login extends AppCompatActivity {
     static final String TAG = "Login.java";
     private FirebaseAuth mAuth;
@@ -119,7 +121,6 @@ public class Login extends AppCompatActivity {
         return etText.getText().toString().trim().length() == 0;
     }
 
-
     /**
      * Gets the current Firebase user
      */
@@ -160,9 +161,7 @@ public class Login extends AppCompatActivity {
                             Toast.makeText(getBaseContext(), R.string.auth_failed,
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(getBaseContext(), R.string.auth_success, Toast.LENGTH_SHORT)
-                                    .show();
-
+                            Log.d(TAG, "authorization successful");
                             Intent intent = new Intent(Login.this, Main.class);
                             intent.putExtra("UUID", FirebaseAuth.getInstance().getCurrentUser()
                                     .getUid());
