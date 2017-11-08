@@ -7,22 +7,51 @@
     android:layout_height="match_parent"
     tools:context="uoit.csci4100u.mobileapp.Main">
 
+    <TextView
+        android:id="@+id/welcome_lbl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        app:layout_constraintLeft_toLeftOf="parent"/>
+
+    <TextView
+        android:id="@+id/avail_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/availability"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/welcome_lbl"/>
+
+    <ToggleButton
+        android:id="@+id/avail_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:buttonTint="@color/colorAccent"
+        android:checked="true"
+        android:textOff="@string/cant_play"
+        android:textOn="@string/lets_play"
+        app:layout_constraintBaseline_toBaselineOf="@+id/avail_label"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <TextView
+        android:id="@+id/summoner_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/avail_label"/>
+
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        tools:layout_constraintTop_creator="1"
-        tools:layout_constraintRight_creator="1"
-        tools:layout_constraintBottom_creator="1"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="8dp"
-        tools:layout_constraintLeft_creator="1"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintRight_toRightOf="parent"
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1">
 
         <Button
             android:id="@+id/set_summ_button"
@@ -45,4 +74,5 @@
             android:onClick="checkConnection"
             android:text="temp_check_conn"/>
     </LinearLayout>
+
 </android.support.constraint.ConstraintLayout>
