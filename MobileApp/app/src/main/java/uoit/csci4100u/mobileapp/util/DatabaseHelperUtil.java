@@ -16,7 +16,7 @@ import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
  * Database helper Class, contains all methods relating to database use
  */
 
-public class DatabaseHelperUtil implements DatabaseReference.CompletionListener {
+public class DatabaseHelperUtil implements DatabaseReference.CompletionListener{
     //reference to Firebase Realtime Database
     private DatabaseReference mDatabaseRoot;
     private DatabaseReference mDatabaseRef;

@@ -10,6 +10,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 
@@ -52,14 +54,18 @@ public class Main extends AppCompatActivity {
     //New Location util
     private LocationUtil locUtil;
 
+
     //database helper
     private static DatabaseHelperUtil dbHelper;
     private static DatabaseReference dbRef;
+    private GoogleApiClient locApi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        locUtil = new LocationUtil(this);
+        setupLocAPI();
         setUpLayouts();
     }
 
@@ -68,8 +74,8 @@ public class Main extends AppCompatActivity {
         extras = getIntent().getExtras();
         mUUID = extras.getString("UUID");
 
-        //starts the location listener
-        locUtil = new LocationUtil(this);
+        locApi.connect();
+        locUtil.setLocAPI(locApi);
 
         run();
         super.onStart();
@@ -77,8 +83,16 @@ public class Main extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        //ghost method left over from networkUtil
+        locApi.disconnect();
         super.onStop();
+    }
+
+    private void setupLocAPI(){
+        locApi = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(locUtil)
+                .addOnConnectionFailedListener(locUtil)
+                .build();
     }
 
     public static void setDBHelper(DatabaseHelperUtil helper) {

@@ -55,18 +55,11 @@
         tools:layout_constraintTop_creator="1">
 
         <Button
-            android:id="@+id/temp_id"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="temp_click"
-            android:text="temp_champ"/>
-
-        <Button
             android:id="@+id/check_conn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="checkConnection"
-            android:text="temp_check_conn"/>
+            android:text="check location"/>
 
         <Button
             android:id="@+id/temp_button"

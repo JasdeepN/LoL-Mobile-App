@@ -92,9 +92,6 @@ public class Login extends AppCompatActivity {
                     mUUID = user.getUid();
                     dbHelper.setUUID(mUUID);
                     checkIfUserExists(mUUID);
-                    //TODO: uncomment this when ready to start main
-//                    startMain();
-                    Log.d("hit this", "aks");
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");
@@ -195,10 +192,15 @@ public class Login extends AppCompatActivity {
         }
     }
 
+    /**
+     * runs the network task to get Summoner object from Riot Games server
+     *
+     * @param name name of the Summoner
+     * @return Summoner object from Riot's servers
+     */
     public Summoner getSummoner(String name) {
         name = name.trim();
         if (name.matches(REGEX)) {
-            Log.d(TAG, "regex match");
             networkParam[1] = name;
             //start the async task with blocking for result
             try {
@@ -208,7 +210,6 @@ public class Login extends AppCompatActivity {
             } catch (java.lang.InterruptedException i) {
                 Log.d(TAG + ":getSummoner", i.toString());
             }
-
         } else {
             Log.d(TAG, "regex fail");
         }
@@ -267,7 +268,7 @@ public class Login extends AppCompatActivity {
                 });
     }
 
-    private void updateSummoner(Summoner userSummoner, String region) {
+    protected void updateSummoner(Summoner userSummoner, String region) {
         networkParam[0] = region;
         Main.setSummoner(getSummoner(userSummoner.getName()));
     }
@@ -277,11 +278,8 @@ public class Login extends AppCompatActivity {
      * finds it launches the run() method
      *
      * @param UUID unique user id
-     * @TODO: update this so it doesn't loop through #readSingleSummoner
-     * @see Main#run()
-     * @see Main#setSummoner(Summoner)
-     * @see DatabaseHelperUtil#readDataSummoner(OnGetDataListener)
-     * @see Main#updateS
+     * @see Login#updateSummoner(Summoner, String)
+     * @see DatabaseHelperUtil#readDataSummoner(String, OnGetDataListener)
      */
 
     private void checkIfUserExists(final String UUID) {
@@ -293,7 +291,7 @@ public class Login extends AppCompatActivity {
                 Summoner temp = dataSnapshot.getValue(Summoner.class);
                 updateSummoner(temp, dataSnapshot.child("region").getValue(String.class));
             }
-            
+
             @Override
             public void onStart() {
                 //when starting
