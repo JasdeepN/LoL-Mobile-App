@@ -1,8 +1,13 @@
 package uoit.csci4100u.mobileapp.util;
 
 import android.os.AsyncTask;
+
+import net.rithms.riot.api.ApiConfig;
+import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
+
+import java.util.concurrent.Callable;
 
 /**
  * Created by jasdeep on 2017-11-06.
@@ -10,7 +15,35 @@ import net.rithms.riot.constant.Platform;
  * Methods that are common across all NetworkTasks go here
  */
 
-public abstract class NetworkTask extends AsyncTask<String, Void, Summoner> {
+public abstract class NetworkTask<Void, result> extends AsyncTask<Void, Void, result> {
+    static final private String API_KEY = "RGAPI-2972a243-6c42-4973-b070-5125645ec77e";
+    static private ApiConfig config;
+    static protected RiotApi riot_api;
+
+    //TODO: return api reference method
+
+    /**
+     * Default constructor - sets up Api config and instantiates new RiotApi object
+     */
+    public NetworkTask(){
+        //TODO: setup API here
+        config = new ApiConfig().setKey(API_KEY);
+        riot_api = new RiotApi(config);
+    }
+
+    /**
+     * Method to return the RiotApi object to calling Class
+     *
+     * @return configured RiotApi object
+     */
+    public RiotApi getAPI(){
+        if(riot_api == null){
+            return null;
+        } else {
+            return riot_api;
+        }
+    }
+
     /**
      * Checks which platform was selected and returns the corresponding Platform object
      *
@@ -43,4 +76,6 @@ public abstract class NetworkTask extends AsyncTask<String, Void, Summoner> {
                 return Platform.RU;
         }
     }
+
+
 }

@@ -16,12 +16,10 @@ import android.util.Log;
  *
  * used to listen for GPS based movement, set sensitivity based on MIN_DISTANCE and MIN_TIME
  * location must be received from LocationUpdate before things can be checked
+ *
+ * TODO: get current location on app launch
+ * TODO: create set home location method
  */
-
-//TODO: get current location on app launch
-//TODO: create set home location method
-//TODO: create check if at home method and call this in the on location changed to see
-// if still at home
 
 public class LocationUtil extends Service implements LocationListener {
     /**
@@ -44,9 +42,9 @@ public class LocationUtil extends Service implements LocationListener {
     private static final int SECONDS = 60;
 
     // x2 makes it 2 minutes (1000 * 60 * 2ms)
-    private static final int MIN_TIME = MILLISECONDS * SECONDS * 2;
-    private static final int MIN_DISTANCE = 10;
-    private final Context mContext;
+    private static final int MIN_TIME = MILLISECONDS * SECONDS * 10;
+    private static final int MIN_DISTANCE = 100;
+    private Context mContext = null;
 
     /**
      * Default constructor for LocationUtil
@@ -63,6 +61,11 @@ public class LocationUtil extends Service implements LocationListener {
             Log.i(TAG, e.toString());
         }
     }
+
+    /**
+     * Empty constructor
+     */
+    public LocationUtil(){}
 
 
     //TODO: implement the onBind method

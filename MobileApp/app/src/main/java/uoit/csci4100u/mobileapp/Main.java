@@ -1,6 +1,5 @@
 package uoit.csci4100u.mobileapp;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,43 +11,41 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
 
-import net.rithms.riot.api.ApiConfig;
-import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 import uoit.csci4100u.mobileapp.util.DatabaseHelperUtil;
 import uoit.csci4100u.mobileapp.util.LocationUtil;
+import uoit.csci4100u.mobileapp.util.OnGetDataListener;
 import uoit.csci4100u.mobileapp.util.PermissionChecker;
 
-import static java.security.AccessController.getContext;
 
 /**
  * Main method for App, handles setting up and receiving Activities/Results
  * <p>
- * currently uses temp development key for Riot API - check to see if key is still valid before
- * changing anything
- * <p>
- * Uses util Class PermissionChecker to check for android permissions
- * Uses util Class LocationUtil to listen for and respond to GPS changes
- * Uses Abstract class NetworkTask which contains methods needed for Riot's API calls
+ * TODO: currently uses temp development key for Riot API - check to see if key is still valid
+ * before changing anything
+ *
+ * @see PermissionChecker#getPermissions()          - to check is permissions are granted, if not asks for
+ * them
+ * @see LocationUtil                                - updates location information
+ * @see uoit.csci4100u.mobileapp.util.NetworkTask   - generic abstract class to handle most of the
+ * Async network tasks
+ * @see DatabaseHelperUtil                          - handles Firebase read and write
  */
 public class Main extends AppCompatActivity {
-    //temp dev key
-    static final String API_KEY = "RGAPI-61d7bd4d-a1b7-466c-bb7a-4c2d2d1385f2";
-    static String UUID = "";
-    static ApiConfig config = new ApiConfig().setKey(API_KEY);
-    static public RiotApi riot_api = new RiotApi(config);
+    static String mUUID = "";
     static final String TAG = "Main.java";
-    static final int REQUEST_SET_SUMMONER = 2;
     static final int SUCCESS = 1;
     static final int FAILURE = 0;
     static final int CANCEL = -1;
-    public static boolean acquired;
+    public static boolean play_staus;
     Bundle extras;
     TextView summoner_info;
     TextView welcome_lbl;
     ToggleButton avail_button;
+
     //the users summoner info
     protected static Summoner uSummoner;
 
@@ -56,7 +53,8 @@ public class Main extends AppCompatActivity {
     private LocationUtil locUtil;
 
     //database helper
-    private DatabaseHelperUtil dbHelper;
+    private static DatabaseHelperUtil dbHelper;
+    private static DatabaseReference dbRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,19 +66,12 @@ public class Main extends AppCompatActivity {
     @Override
     protected void onStart() {
         extras = getIntent().getExtras();
-        UUID = extras.getString("UUID");
-
-        //checks for permissions
-        new PermissionChecker(getBaseContext(), this).getPermissions();
+        mUUID = extras.getString("UUID");
 
         //starts the location listener
         locUtil = new LocationUtil(this);
 
-        dbHelper = new DatabaseHelperUtil();
-        acquired = false;
-
-        checkIfUserExists(UUID);
-
+        run();
         super.onStart();
     }
 
@@ -90,10 +81,20 @@ public class Main extends AppCompatActivity {
         super.onStop();
     }
 
+    public static void setDBHelper(DatabaseHelperUtil helper) {
+        dbHelper = helper;
+    }
+
+    public static void setDBRef(DatabaseReference ref) {
+        dbRef = ref;
+    }
+
     /**
      * Instantiates and assigns global variables related to the layout
+     * <p>
+     * TODO: make this set a Boolean on Firebase where true is looking for games and false is not
      */
-    public void setUpLayouts(){
+    public void setUpLayouts() {
         summoner_info = (TextView) findViewById(R.id.summoner_info);
         welcome_lbl = (TextView) findViewById(R.id.welcome_lbl);
         avail_button = (ToggleButton) findViewById(R.id.avail_button);
@@ -103,10 +104,12 @@ public class Main extends AppCompatActivity {
                 if (isChecked) {
                     // The toggle is enabled
                     Log.d("Toggle", "ON");
+
                 } else {
                     // The toggle is disabled
                     Log.d("Toggle", "OFF");
                 }
+                play_staus = toggleStatus(play_staus);
             }
         });
     }
@@ -128,64 +131,30 @@ public class Main extends AppCompatActivity {
         }
     }
 
+
     /**
-     * Checks Firebase to see if there is a Summoner object saved with the users UUID, if it
-     * finds it launches the run() method
-     *
-     * @see Main#run()
-     * @see DatabaseHelperUtil#readData(DatabaseHelperUtil.OnGetDataListener)
-     * @param UUID unique user id
+     * Sets welcome text labels
      */
-    private void checkIfUserExists(final String UUID) {
-        //tells the user whats happening
-        summoner_info.setText(R.string.async_task);
-        dbHelper.readData(new DatabaseHelperUtil.OnGetDataListener() {
-            @Override
-            public void onSuccess(DataSnapshot dataSnapshot) {
-
-                Log.d("data GOT BACK", dataSnapshot.getValue() + "");
-                for (DataSnapshot dChild : dataSnapshot.getChildren()) {
-                    if (dChild.getKey().equals(UUID)) {
-                        Log.d(TAG, "child key >>> " + dChild.getKey());
-                        Log.d(TAG, "Summoner " + dChild.getValue(Summoner.class));
-                        setSummoner(dChild.getValue(Summoner.class));
-                        run();
-                        //if it hits this break found user
-                        break;
-                    }
-                }
-                //otherwise should hit this
-                run();
-            }
-
-            @Override
-            public void onStart() {
-                //when starting
-                Log.d(TAG, "Started database read");
-            }
-
-            @Override
-            public void onFailure() {
-                Log.d("onFailure", "Failed");
-            }
-        });
-
+    private void run() {
+        printSummonerToScreen(uSummoner);
+        String welcome_format = getResources().getString(R.string.welcome_back);
+        String welcome_message = String.format(welcome_format, uSummoner.getName());
+        welcome_lbl.setText(welcome_message);
+        getPlayStatus();
     }
 
     /**
-     * Simply checks if the user has a Summoner object that is valid and prints the info to the
-     * screen; if the Summoner object is
+     * gets the searching for game Boolean from the Firebase
+     *
+     * @return Boolean True if the user is looking for a game and False if they are not
      */
-    private void run() {
-        if (acquired) {
-            printSummonerToScreen(uSummoner);
-            String welcome_format = getResources().getString(R.string.welcome_back);
-            String welcome_message = String.format(welcome_format, uSummoner.getName());
-            welcome_lbl.setText(welcome_message);
-        } else {
-            Intent setSummIntent = new Intent(Main.this, SetSummoner.class);
-            startActivityForResult(setSummIntent, REQUEST_SET_SUMMONER);
-        }
+    private void getPlayStatus() {
+       DatabaseReference dref = dbHelper.getCurrentStatus();
+       Log.d("GET PLAY STATUS", dref.getKey());
+    }
+
+    private Boolean toggleStatus(Boolean status) {
+        return dbHelper.togglePlay(status);
     }
 
 
@@ -204,20 +173,17 @@ public class Main extends AppCompatActivity {
      * @param you Summoner object belonging to the user
      */
     public static void setSummoner(Summoner you) {
-        Main.uSummoner = you;
-        acquired = true;
+        uSummoner = you;
     }
 
     //TODO: update this so it makes sense
     public void temp_click(View v) {
-        Intent temp_intent = new Intent(Main.this, Champions.class);
-        startActivity(temp_intent);
+//        Intent temp_intent = new Intent(Main.this, Champions.class);
+//        startActivity(temp_intent);
+        setResult(Login.RESULT_LOGOUT);
+        finish();
     }
 
-
-    public void onSetSummonerClicked(View v) {
-
-    }
 
     //TODO: remove this, this is a temporary onCLick method
     public void checkConnection(View v) {
@@ -230,11 +196,7 @@ public class Main extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_SET_SUMMONER && resultCode == SUCCESS) {
-            Toast.makeText(this, R.string.lbl_set, Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "write to DB");
-            dbHelper.addUser(UUID, uSummoner);
-        } else if (resultCode == FAILURE) {
+        if (resultCode == FAILURE) {
             Log.d(TAG, "Error");
             Toast.makeText(this, R.string.lbl_set_fail, Toast.LENGTH_SHORT).show();
         } else {

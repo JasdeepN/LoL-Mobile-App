@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="8dp"
     tools:context="uoit.csci4100u.mobileapp.Main">
 
     <TextView
@@ -54,13 +55,6 @@
         tools:layout_constraintTop_creator="1">
 
         <Button
-            android:id="@+id/set_summ_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onSetSummonerClicked"
-            android:text="temp set button"/>
-
-        <Button
             android:id="@+id/temp_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -73,6 +67,13 @@
             android:layout_height="wrap_content"
             android:onClick="checkConnection"
             android:text="temp_check_conn"/>
+
+        <Button
+            android:id="@+id/temp_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="temp_click"
+            android:text="logout"/>
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
