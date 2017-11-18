@@ -82,9 +82,10 @@ public class DatabaseHelperUtil implements DatabaseReference.CompletionListener 
      *
      * @param listener listener object that is listening for database changes
      */
-    public void readDataSummoner(final OnGetDataListener listener) {
+    public void readDataSummoner(String UUID, final OnGetDataListener listener) {
+
         listener.onStart();
-            mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            mDatabaseRef.child(UUID).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     listener.onSuccess(dataSnapshot);

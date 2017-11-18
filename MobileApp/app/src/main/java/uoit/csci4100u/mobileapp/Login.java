@@ -267,9 +267,9 @@ public class Login extends AppCompatActivity {
                 });
     }
 
-    private void updateSummoner(Summoner x, String region) {
+    private void updateSummoner(Summoner userSummoner, String region) {
         networkParam[0] = region;
-        Main.setSummoner(getSummoner(x.getName()));
+        Main.setSummoner(getSummoner(userSummoner.getName()));
     }
 
     /**
@@ -285,26 +285,19 @@ public class Login extends AppCompatActivity {
      */
 
     private void checkIfUserExists(final String UUID) {
-        dbHelper.readDataSummoner(new OnGetDataListener() {
+
+        dbHelper.readDataSummoner(UUID, new OnGetDataListener() {
             @Override
             public void onSuccess(DataSnapshot dataSnapshot) {
-                Log.d("check if user exists", dataSnapshot.getValue() + "");
-                for (DataSnapshot dChild : dataSnapshot.getChildren()) {
-                    if (dChild.getKey().equals(UUID)) {
-                        Log.d(TAG, "child key >>> " + dChild.getKey());
-                        Log.d(TAG, "Summoner " + dChild.getValue(Summoner.class));
-
-                        updateSummoner(dChild.getValue(Summoner.class), dChild.child("region")
-                                .getValue(String.class));
-                        Log.d("success", "found summoner");
-                    }
-                }
+                Log.d("checkUser:db", "finish database read");
+                Summoner temp = dataSnapshot.getValue(Summoner.class);
+                updateSummoner(temp, dataSnapshot.child("region").getValue(String.class));
             }
-
+            
             @Override
             public void onStart() {
                 //when starting
-                Log.d(TAG, "Started database read");
+                Log.d("checkUser:db", "Started database read");
             }
 
             @Override
@@ -365,8 +358,6 @@ public class Login extends AppCompatActivity {
         @Override
         protected Summoner doInBackground(Void... input) {
             Log.d("async task", "Started");
-//            Log.d("input 0", input[0]); //platform/locale
-//            Log.d("input 1", input[1]); //summoner name
             try {
                 Log.d("networkParam 1", networkParam[0] + "");
                 Log.d("networkParam 2", networkParam[1] + "");
@@ -387,6 +378,7 @@ public class Login extends AppCompatActivity {
                 Toast.makeText(getBaseContext(), "could not find that summoner", Toast.LENGTH_SHORT).show();
             }
         }
+
     }
 
     //continue program execution
