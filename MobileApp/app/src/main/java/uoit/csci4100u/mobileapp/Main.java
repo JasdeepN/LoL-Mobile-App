@@ -3,9 +3,13 @@ package uoit.csci4100u.mobileapp;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -76,8 +80,11 @@ public class Main extends AppCompatActivity {
 
     //database helper
     private static DatabaseHelperUtil dbHelper;
-    private static DatabaseReference dbRef;
     private GoogleApiClient locApi;
+
+    private static Menu menu;
+    private MenuItem refreshItem;
+    private static boolean refreshAvail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,17 +101,24 @@ public class Main extends AppCompatActivity {
         mUUID = extras.getString("UUID");
         locale = extras.getString("locale");
         current_version = extras.getString("version");
+        Log.d("version recieved", current_version+"");
         locApi.connect();
         locUtil.setLocAPI(locApi);
 
-        run();
+        updateUI();
         super.onStart();
     }
 
     @Override
-    protected void onResume(){
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_layout, menu);
+        return true;
+    }
+
+    @Override
+    protected void onResume() {
         //update without having to relaunch app
-//        run();
         super.onResume();
     }
 
@@ -122,13 +136,19 @@ public class Main extends AppCompatActivity {
                 .build();
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        this.menu=menu;
+        this.refreshItem = menu.getItem(0);
+        startTimer(R.id.refresh_ui);
+        refreshItem.setEnabled(false);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     public static void setDBHelper(DatabaseHelperUtil helper) {
         dbHelper = helper;
     }
 
-    public static void setDBRef(DatabaseReference ref) {
-        dbRef = ref;
-    }
 
     /**
      * Instantiates and assigns global variables related to the layout
@@ -175,16 +195,16 @@ public class Main extends AppCompatActivity {
     }
 
 
-    /**
-     * Sets welcome text labels
-     */
-    private void run() {
-        printSummonerToScreen(uSummoner);
-        String welcome_format = getResources().getString(R.string.welcome_back);
-        String welcome_message = String.format(welcome_format, uSummoner.getName());
-        welcome_lbl.setText(welcome_message);
-        getPlayStatus();
-        new DataDragonTask().execute(uSummoner.getProfileIconId()+"");
+    private static String timeConversion(int totalSeconds) {
+
+        final int MINUTES_IN_AN_HOUR = 60;
+        final int SECONDS_IN_A_MINUTE = 60;
+
+        int seconds = totalSeconds % SECONDS_IN_A_MINUTE;
+        int totalMinutes = totalSeconds / SECONDS_IN_A_MINUTE;
+        int minutes = totalMinutes % MINUTES_IN_AN_HOUR;
+
+        return minutes + ":" + seconds;
     }
 
     public class DataDragonTask extends NetworkTask<String, Integer, Bitmap> {
@@ -194,8 +214,8 @@ public class Main extends AppCompatActivity {
             Bitmap bm = null;
             try {
 
-                String tempUrl = BASE_DRAGON_URL + current_version + "/img/profileicon/"+ input[0] + ".png";
-                Log.d("DataDragon:lookup", tempUrl+"");
+                String tempUrl = BASE_DRAGON_URL + current_version + "/img/profileicon/" + input[0] + ".png";
+                Log.d("DataDragon:lookup", tempUrl + "");
                 URL url = new URL(tempUrl);
 
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -205,22 +225,22 @@ public class Main extends AppCompatActivity {
                 bm = BitmapFactory.decodeStream(bis);
                 bis.close();
                 is.close();
-            } catch (java.net.MalformedURLException me){
-                Log.d("URL ERROR", me+"");
-            } catch (java.io.IOException ie){
-                Log.d("IO ERROR", ie+"");
+            } catch (java.net.MalformedURLException me) {
+                Log.d("URL ERROR", me + "");
+            } catch (java.io.IOException ie) {
+                Log.d("IO ERROR", ie + "");
             }
             return bm;
         }
 
         @Override
-        protected void onPostExecute(Bitmap result){
+        protected void onPostExecute(Bitmap result) {
             Log.d("DataDragon:end", "finished internet access");
             icon.setImageBitmap(result);
         }
 
         @Override
-        protected void onPreExecute(){
+        protected void onPreExecute() {
             Log.d("DataDragon:start", "starting internet access");
         }
     }
@@ -275,6 +295,62 @@ public class Main extends AppCompatActivity {
         } else {
             Log.d(TAG, "something went wrong");
         }
+    }
+
+    public void onRefreshClick() {
+        if (refreshAvail) {
+//            updateUI();
+            startTimer(R.id.refresh_ui);
+        } else {
+            Toast.makeText(this, R.string.refresh_interval, Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+    private static void startTimer(final int item_id){
+        Log.d("timer", "start");
+        new CountDownTimer(300000, 1000) {
+            MenuItem temp = menu.findItem(item_id);
+
+            public void onTick(long millisUntilFinished) {
+                temp.setTitle(timeConversion((int) (millisUntilFinished / 1000)));
+            }
+
+            public void onFinish() {
+                Log.d("timer", "finish");
+                temp.setTitle(R.string.refresh_avail);
+                refreshAvail = toggleBool(refreshAvail);
+                temp.setEnabled(true);
+
+            }
+        }.start();
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.refresh_ui:
+                onRefreshClick();
+                refreshItem.setEnabled(false);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void updateUI() {
+        refreshAvail = false;
+        printSummonerToScreen(uSummoner);
+        String welcome_format = getResources().getString(R.string.welcome_back);
+        String welcome_message = String.format(welcome_format, uSummoner.getName());
+        welcome_lbl.setText(welcome_message);
+        getPlayStatus();
+        new DataDragonTask().execute(uSummoner.getProfileIconId() + "");
+
+    }
+
+    public static Boolean toggleBool(Boolean current_setting){
+        return  !current_setting;
     }
 
     @Override

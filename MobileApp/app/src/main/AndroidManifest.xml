@@ -32,12 +32,7 @@
                 <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
-        <activity android:name=".SetSummoner">
-        </activity>
-        <activity android:name=".Champions">
-        </activity>
 
-        <service android:name=".util.LocationUtil"/>
     </application>
 
 </manifest>

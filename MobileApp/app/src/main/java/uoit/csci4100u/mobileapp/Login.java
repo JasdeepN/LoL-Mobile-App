@@ -29,6 +29,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 
 import net.rithms.riot.api.RiotApi;
+import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 import java.util.List;
@@ -47,7 +48,8 @@ public class Login extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthListener;
     private static String mUUID;
     static String current_version;
-    RiotAPIGetSummoner networkTask;
+    static List<String> versions;
+    RiotApiTask networkTask;
     String[] networkParam;
     String[] locales;
     RiotApi riotApi;
@@ -62,6 +64,8 @@ public class Login extends AppCompatActivity {
 
     //database helper
     private DatabaseHelperUtil dbHelper;
+
+    private static final int UPDATE_INTERVAL = 300000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +97,7 @@ public class Login extends AppCompatActivity {
         locales = getResources().getStringArray(R.array.Region_Array);
         setupSpinner();
 
-        networkTask = new RiotAPIGetSummoner();
+        networkTask = new RiotApiTask();
         riotApi = networkTask.getAPI();
         networkParam = new String[2];
 
@@ -284,8 +288,11 @@ public class Login extends AppCompatActivity {
     }
 
     protected void updateSummoner(Summoner userSummoner, String region) {
+        Log.d("updating", "updating existing user");
         networkParam[0] = region;
-        Main.setSummoner(getSummoner(userSummoner.getName()));
+        Summoner updated = getSummoner(userSummoner.getName());
+        Main.setSummoner(updated);
+        dbHelper.updateUser(updated, current_version);
     }
 
     /**
@@ -298,14 +305,33 @@ public class Login extends AppCompatActivity {
      */
 
     private void checkIfUserExists(final String UUID) {
-
         dbHelper.readDataSummoner(UUID, new OnGetDataListener() {
             @Override
             public void onSuccess(DataSnapshot dataSnapshot) {
                 Log.d("checkUser:db", "finish database read");
                 Summoner temp = dataSnapshot.getValue(Summoner.class);
-                updateSummoner(temp, dataSnapshot.child("region").getValue(String.class));
+                current_version = dataSnapshot.child("version").getValue(String.class);
+                Long time = dataSnapshot.child("last_update").getValue(Long.class);
+                Log.d("time", time+"");
+                if (time != null && temp != null) {
+                    if ((System.currentTimeMillis() - time) > UPDATE_INTERVAL) {
+                        Log.d("update time", System.currentTimeMillis() - time+"");
+                        updateSummoner(temp, dataSnapshot.child("region").getValue(String.class));
+                        return;
+                    } else {
+                        Log.d("existing user", "found user; no update");
+                        Main.setSummoner(temp);
+                    }
+                } else if (time == null){
+                    Log.d("new user", "adding new user");
+                } 
+                if (temp != null) {
+                    Log.d("checkUser", "Starting main from check if user exists");
+                    startMain();
+                }
             }
+
+
 
             @Override
             public void onStart() {
@@ -348,7 +374,7 @@ public class Login extends AppCompatActivity {
                             Log.d(TAG + "createAccoun", "do things");
                             userSummoner = getSummoner(summoner.getText().toString());
 
-                            dbHelper.addUser(userSummoner, networkParam[0]);
+                            dbHelper.addUser(userSummoner, networkParam[0], current_version);
                             Main.setSummoner(userSummoner);
 //                            Log.d(TAG + "createAccoun", "error no matching summoner");
                             //... other things
@@ -364,13 +390,13 @@ public class Login extends AppCompatActivity {
      * Queries the Riot API if a valid Summoner name is provided and saves the returned Summoner
      * to the Summoner object in the Main method
      */
-    public class RiotAPIGetSummoner extends NetworkTask<Void, Integer, Summoner> {
+    public class RiotApiTask extends NetworkTask<Void, Integer, Summoner> {
         Summoner summoner;
 
         //TODO: remove logs when done testing this method
 
         @Override
-        protected Summoner doInBackground(Void... input) {
+        protected Summoner doInBackground(Void[] input) {
             Log.d("async task", "Started");
             publishProgress(1);
             try {
@@ -378,8 +404,8 @@ public class Login extends AppCompatActivity {
                 Log.d("networkParam 2", networkParam[1] + "");
                 publishProgress(2);
                 summoner = riot_api.getSummonerByName(checkPlatform(networkParam[0]), networkParam[1]);
-                List<String> versions = riot_api.getDataVersions(checkPlatform(networkParam[0]));
-                current_version = versions.get(0);
+                versions = riot_api.getDataVersions(checkPlatform(networkParam[0]));
+
             } catch (net.rithms.riot.api.RiotApiException e) {
                 Log.d("RIOT API", e.toString());
             }
@@ -402,6 +428,7 @@ public class Login extends AppCompatActivity {
                 //TODO: make progress bar invisible and return buttons
 //                progressBar.setVisibility(View.GONE);
                 button_bar.setVisibility(View.VISIBLE);
+                current_version = versions.get(0);
                 //Entry point to main
                 startMain();
             } else {
@@ -429,7 +456,7 @@ public class Login extends AppCompatActivity {
         intent.putExtra("locale", networkParam[0]);
         intent.putExtra("version", current_version);
         Main.setDBHelper(dbHelper);
-        Main.setDBRef(dbHelper.getUserRef(mUUID));
+//        Main.setDBRef(dbHelper.getUserRef(mUUID));
         startActivityForResult(intent, REQUEST_MAIN);
     }
 
