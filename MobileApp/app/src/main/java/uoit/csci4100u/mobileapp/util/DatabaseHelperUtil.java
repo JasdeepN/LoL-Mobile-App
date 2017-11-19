@@ -11,6 +11,7 @@ import com.google.firebase.database.ValueEventListener;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Created by jasdeep on 2017-11-07.
@@ -43,7 +44,7 @@ public class DatabaseHelperUtil implements DatabaseReference.CompletionListener{
      * @param newSumm Summoner object to attach to account
      */
     private void writeNewUser(Summoner newSumm, String region, String version) {
-        mDatabaseRef.child(mUUID).setValue(newSumm);
+        mDatabaseRef.child(mUUID).child("summoner").setValue(newSumm);
         //sets the default search value to false
         mDatabaseRef.child(mUUID).child("can_play").setValue(false);
         mDatabaseRef.child(mUUID).child("region").setValue(region);
@@ -61,15 +62,13 @@ public class DatabaseHelperUtil implements DatabaseReference.CompletionListener{
         writeNewUser(newUser, region, version);
     }
 
-    public void updateUser(Summoner user, String version) {
-        updateDBuser(user, version);
+    public void updateUser(Map<String, Object> map) {
+        updateDBuser(map);
     }
 
-    private void updateDBuser(Summoner user, String version) {
-        mDatabaseRef.child(mUUID).setValue(user);
-        //sets the default search value to false
-        mDatabaseRef.child(mUUID).child("last_update").setValue(System.currentTimeMillis());
-        mDatabaseRef.child(mUUID).child("version").setValue(version);
+    private void updateDBuser(Map<String, Object> map) {
+        Log.d("updating children", map+"");
+        mDatabaseRef.child(mUUID).updateChildren(map);
     }
 
     public DatabaseReference getUserRef(String UUID){
@@ -113,8 +112,18 @@ public class DatabaseHelperUtil implements DatabaseReference.CompletionListener{
 
     }
 
-    public DatabaseReference getCurrentStatus(){
-        return mDatabaseRef.child(mUUID).child("can_play");
+    public void getCurrentStatus(final OnGetDataListener listener){
+        mDatabaseRef.child(mUUID).child("can_play").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listener.onSuccess(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                listener.onFailure();
+            }
+        });
     }
 
 

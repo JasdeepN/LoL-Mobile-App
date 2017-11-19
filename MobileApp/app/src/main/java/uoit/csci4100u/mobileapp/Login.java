@@ -32,7 +32,9 @@ import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import uoit.csci4100u.mobileapp.util.DatabaseHelperUtil;
 import uoit.csci4100u.mobileapp.util.NetworkTask;
@@ -61,11 +63,12 @@ public class Login extends AppCompatActivity {
     EditText summoner;
     TextView progress_label;
     ProgressBar progressBar;
+    boolean can_play;
 
     //database helper
     private DatabaseHelperUtil dbHelper;
 
-    private static final int UPDATE_INTERVAL = 300000;
+    private static final int UPDATE_INTERVAL = 1000 * 60 * 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -287,12 +290,21 @@ public class Login extends AppCompatActivity {
                 });
     }
 
-    protected void updateSummoner(Summoner userSummoner, String region) {
+    protected void updateSummoner(Summoner userSummoner, String Region) {
         Log.d("updating", "updating existing user");
-        networkParam[0] = region;
+        networkParam[0] = Region;
         Summoner updated = getSummoner(userSummoner.getName());
         Main.setSummoner(updated);
-        dbHelper.updateUser(updated, current_version);
+        updateDB(updated, Region);
+    }
+
+    protected void updateDB(Summoner updated, String mRegion){
+        Map<String, Object> temp = new HashMap<>();
+        temp.put("summoner", updated);
+        temp.put("can_play", can_play);
+        temp.put("region", mRegion);
+        temp.put("version", current_version);
+        dbHelper.updateUser(temp);
     }
 
     /**
@@ -309,29 +321,35 @@ public class Login extends AppCompatActivity {
             @Override
             public void onSuccess(DataSnapshot dataSnapshot) {
                 Log.d("checkUser:db", "finish database read");
-                Summoner temp = dataSnapshot.getValue(Summoner.class);
-                current_version = dataSnapshot.child("version").getValue(String.class);
+                Summoner temp = dataSnapshot.child("summoner").getValue(Summoner.class);
+                try {
+                    can_play = dataSnapshot.child("can_play").getValue(Boolean.class);
+                } catch (java.lang.NullPointerException ne){
+                    can_play = false;
+                }
                 Long time = dataSnapshot.child("last_update").getValue(Long.class);
+                String region = dataSnapshot.child("region").getValue(String.class);
+                Log.d("region","got back " + region);
+
                 Log.d("time", time+"");
                 if (time != null && temp != null) {
                     if ((System.currentTimeMillis() - time) > UPDATE_INTERVAL) {
                         Log.d("update time", System.currentTimeMillis() - time+"");
-                        updateSummoner(temp, dataSnapshot.child("region").getValue(String.class));
+                        updateSummoner(temp, region);
                         return;
                     } else {
                         Log.d("existing user", "found user; no update");
+                        current_version = dataSnapshot.child("version").getValue(String.class);
                         Main.setSummoner(temp);
                     }
                 } else if (time == null){
                     Log.d("new user", "adding new user");
-                } 
+                }
                 if (temp != null) {
                     Log.d("checkUser", "Starting main from check if user exists");
                     startMain();
                 }
             }
-
-
 
             @Override
             public void onStart() {
@@ -371,10 +389,11 @@ public class Login extends AppCompatActivity {
                             mUUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
                             dbHelper.setUUID(mUUID);
                             //TODO: check for summoner name otherwise block
-                            Log.d(TAG + "createAccoun", "do things");
                             userSummoner = getSummoner(summoner.getText().toString());
 
                             dbHelper.addUser(userSummoner, networkParam[0], current_version);
+                            Log.d(TAG + "version", current_version+"");
+
                             Main.setSummoner(userSummoner);
 //                            Log.d(TAG + "createAccoun", "error no matching summoner");
                             //... other things
@@ -429,6 +448,8 @@ public class Login extends AppCompatActivity {
 //                progressBar.setVisibility(View.GONE);
                 button_bar.setVisibility(View.VISIBLE);
                 current_version = versions.get(0);
+                Log.d("Version", current_version);
+                updateDB(result, networkParam[0]);
                 //Entry point to main
                 startMain();
             } else {

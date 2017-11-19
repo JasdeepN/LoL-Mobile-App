@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -22,18 +21,12 @@ import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 
-import net.rithms.riot.api.endpoints.static_data.dto.Image;
-import net.rithms.riot.api.endpoints.static_data.dto.Realm;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
 
 import uoit.csci4100u.mobileapp.util.DatabaseHelperUtil;
 import uoit.csci4100u.mobileapp.util.LocationUtil;
@@ -139,9 +132,9 @@ public class Main extends AppCompatActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         this.menu=menu;
-        this.refreshItem = menu.getItem(0);
-        startTimer(R.id.refresh_ui);
-        refreshItem.setEnabled(false);
+//        this.refreshItem = menu.getItem(0);
+//        startTimer(R.id.refresh_ui);
+//        refreshItem.setEnabled(false);
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -252,8 +245,25 @@ public class Main extends AppCompatActivity {
      * @return Boolean True if the user is looking for a game and False if they are not
      */
     private void getPlayStatus() {
-        DatabaseReference dref = dbHelper.getCurrentStatus();
-        Log.d("GET PLAY STATUS", dref.getKey());
+        dbHelper.getCurrentStatus(new OnGetDataListener() {
+
+            @Override
+            public void onSuccess(DataSnapshot dataSnapshot) {
+                play_staus = dataSnapshot.getValue(Boolean.class);
+                Log.d("getPlayStatus", "received "+play_staus);
+            }
+
+            @Override
+            public void onStart() {
+                Log.d("getPlayStatus", "getting play status");
+            }
+
+            @Override
+            public void onFailure() {
+
+            }
+        });
+
     }
 
     private Boolean toggleStatus(Boolean status) {
@@ -280,7 +290,7 @@ public class Main extends AppCompatActivity {
     }
 
     //TODO: update this so it makes sense
-    public void temp_click(View v) {
+    public void logout() {
 //        Intent temp_intent = new Intent(Main.this, Champions.class);
 //        startActivity(temp_intent);
         setResult(Login.RESULT_LOGOUT);
@@ -289,7 +299,7 @@ public class Main extends AppCompatActivity {
 
 
     //TODO: remove this, this is a temporary onCLick method
-    public void checkConnection(View v) {
+    public void checkConnection() {
         if (locUtil.getLocation() != null) {
             Log.d(TAG, locUtil.getLocation().toString());
         } else {
@@ -299,7 +309,7 @@ public class Main extends AppCompatActivity {
 
     public void onRefreshClick() {
         if (refreshAvail) {
-//            updateUI();
+            updateUI();
             startTimer(R.id.refresh_ui);
         } else {
             Toast.makeText(this, R.string.refresh_interval, Toast.LENGTH_SHORT).show();
@@ -331,7 +341,13 @@ public class Main extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.refresh_ui:
                 onRefreshClick();
-                refreshItem.setEnabled(false);
+                item.setEnabled(false);
+                return true;
+            case R.id.check_conn:
+                checkConnection();
+                return true;
+            case R.id.logout_option:
+                logout();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
