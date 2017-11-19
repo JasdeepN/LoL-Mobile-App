@@ -1,6 +1,7 @@
 package uoit.csci4100u.mobileapp.util;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import net.rithms.riot.api.ApiConfig;
 import net.rithms.riot.api.RiotApi;
@@ -15,8 +16,9 @@ import java.util.concurrent.Callable;
  * Methods that are common across all NetworkTasks go here
  */
 
-public abstract class NetworkTask<Void, result> extends AsyncTask<Void, Void, result> {
-    static final private String API_KEY = "RGAPI-2972a243-6c42-4973-b070-5125645ec77e";
+public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void, Integer,
+        result> {
+    static final private String API_KEY = "RGAPI-a8c17c1a-c190-42c3-a725-565077f4646e";
     static private ApiConfig config;
     static protected RiotApi riot_api;
 
@@ -27,6 +29,7 @@ public abstract class NetworkTask<Void, result> extends AsyncTask<Void, Void, re
      */
     public NetworkTask(){
         //TODO: setup API here
+        Log.d("using API KEY", API_KEY);
         config = new ApiConfig().setKey(API_KEY);
         riot_api = new RiotApi(config);
     }
@@ -38,8 +41,10 @@ public abstract class NetworkTask<Void, result> extends AsyncTask<Void, Void, re
      */
     public RiotApi getAPI(){
         if(riot_api == null){
+            Log.d("RIOT API", "api error");
             return null;
         } else {
+            Log.d("RIOT API", "api successfully returned");
             return riot_api;
         }
     }

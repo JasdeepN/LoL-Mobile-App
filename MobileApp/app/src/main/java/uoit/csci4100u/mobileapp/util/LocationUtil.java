@@ -49,7 +49,7 @@ public class LocationUtil implements GoogleApiClient.ConnectionCallbacks, Google
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
     private Context mContext = null;
-    
+
     //static time variables
     private static final int MILLISECONDS = 1000;
 

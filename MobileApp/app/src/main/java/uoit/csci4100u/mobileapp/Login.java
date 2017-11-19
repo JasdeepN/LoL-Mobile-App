@@ -14,8 +14,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -28,6 +30,8 @@ import com.google.firebase.database.DataSnapshot;
 
 import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
+
+import java.util.List;
 
 import uoit.csci4100u.mobileapp.util.DatabaseHelperUtil;
 import uoit.csci4100u.mobileapp.util.NetworkTask;
@@ -42,15 +46,19 @@ public class Login extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private static String mUUID;
+    static String current_version;
     RiotAPIGetSummoner networkTask;
     String[] networkParam;
     String[] locales;
     RiotApi riotApi;
     LinearLayout summoner_line;
+    LinearLayout button_bar;
     String region;
     EditText email;
     EditText pass;
     EditText summoner;
+    TextView progress_label;
+    ProgressBar progressBar;
 
     //database helper
     private DatabaseHelperUtil dbHelper;
@@ -67,12 +75,19 @@ public class Login extends AppCompatActivity {
         new PermissionChecker(getBaseContext(), this).getPermissions();
         dbHelper = new DatabaseHelperUtil();
 
+        progress_label = (TextView) findViewById(R.id.progress_label);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setMax(3);
+        progressBar.setVisibility(View.GONE);
+        progress_label.setVisibility(View.GONE);
+
         mAuth = FirebaseAuth.getInstance();
         email = (EditText) findViewById(R.id.email_field);
         pass = (EditText) findViewById(R.id.pass_field);
         summoner = (EditText) findViewById(R.id.summoner);
 
         summoner_line = (LinearLayout) findViewById(R.id.summoner_line);
+        button_bar = (LinearLayout) findViewById(R.id.button_bar);
         summoner_line.setVisibility(View.GONE);
 
         locales = getResources().getStringArray(R.array.Region_Array);
@@ -349,21 +364,33 @@ public class Login extends AppCompatActivity {
      * Queries the Riot API if a valid Summoner name is provided and saves the returned Summoner
      * to the Summoner object in the Main method
      */
-    public class RiotAPIGetSummoner extends NetworkTask<Void, Summoner> {
+    public class RiotAPIGetSummoner extends NetworkTask<Void, Integer, Summoner> {
         Summoner summoner;
+
         //TODO: remove logs when done testing this method
 
         @Override
         protected Summoner doInBackground(Void... input) {
             Log.d("async task", "Started");
+            publishProgress(1);
             try {
                 Log.d("networkParam 1", networkParam[0] + "");
                 Log.d("networkParam 2", networkParam[1] + "");
+                publishProgress(2);
                 summoner = riot_api.getSummonerByName(checkPlatform(networkParam[0]), networkParam[1]);
+                List<String> versions = riot_api.getDataVersions(checkPlatform(networkParam[0]));
+                current_version = versions.get(0);
             } catch (net.rithms.riot.api.RiotApiException e) {
                 Log.d("RIOT API", e.toString());
             }
+            publishProgress(3);
             return summoner;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+//            txt.setText("Running..."+ values[0]);
+            progressBar.setProgress(values[0]);
         }
 
         @Override
@@ -371,10 +398,26 @@ public class Login extends AppCompatActivity {
             Log.d(TAG + ":postExecute", "Starting main");
             if (result != null) {
                 Main.setSummoner(result);
+                progress_label.setText(R.string.net_complete);
+                //TODO: make progress bar invisible and return buttons
+//                progressBar.setVisibility(View.GONE);
+                button_bar.setVisibility(View.VISIBLE);
+                //Entry point to main
                 startMain();
             } else {
+                progress_label.setText(R.string.net_error);
                 Toast.makeText(getBaseContext(), "could not find that summoner", Toast.LENGTH_SHORT).show();
             }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            progressBar.setProgress(0);
+            progress_label.setText(R.string.net_start);
+            button_bar.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
+            progress_label.setVisibility(View.VISIBLE);
+
         }
 
     }
@@ -383,6 +426,8 @@ public class Login extends AppCompatActivity {
     private void startMain() {
         Intent intent = new Intent(Login.this, Main.class);
         intent.putExtra("UUID", mUUID);
+        intent.putExtra("locale", networkParam[0]);
+        intent.putExtra("version", current_version);
         Main.setDBHelper(dbHelper);
         Main.setDBRef(dbHelper.getUserRef(mUUID));
         startActivityForResult(intent, REQUEST_MAIN);

@@ -19,7 +19,7 @@
         android:id="@+id/email_field"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="75dp"
         android:ems="15"
         android:hint="Email"
         android:inputType="textEmailAddress"
@@ -66,9 +66,35 @@
             android:layout_weight="1"
             app:layout_constraintLeft_toRightOf="@id/summoner"
             />
+
     </LinearLayout>
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="@android:style/Widget.Material.Light.ProgressBar.Horizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:maxHeight="20dip"
+        android:minHeight="20dip"
+        android:padding="16dp"
+        android:paddingBottom="-16dp"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/progress_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:autoText="false"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progressBar"/>
+
     <LinearLayout
+        android:id="@+id/button_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -91,6 +117,7 @@
             android:layout_weight="1"
             android:onClick="onCreateClick"
             android:text="@string/new_user_button"/>
+
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

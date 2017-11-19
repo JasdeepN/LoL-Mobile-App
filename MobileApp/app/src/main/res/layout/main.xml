@@ -8,12 +8,24 @@
     android:padding="8dp"
     tools:context="uoit.csci4100u.mobileapp.Main">
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="summoner icon"
+        android:padding="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        />
+
     <TextView
         android:id="@+id/welcome_lbl"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        app:layout_constraintLeft_toRightOf="@+id/imageView"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/avail_label"
@@ -21,7 +33,7 @@
         android:layout_height="wrap_content"
         android:text="@string/availability"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/welcome_lbl"/>
 
     <ToggleButton
@@ -39,6 +51,7 @@
         android:id="@+id/summoner_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        app:layout_constraintLeft_toRightOf="@+id/imageView"
         app:layout_constraintTop_toBottomOf="@+id/avail_label"/>
 
     <LinearLayout
