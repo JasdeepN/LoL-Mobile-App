@@ -18,7 +18,7 @@ import java.util.concurrent.Callable;
 
 public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void, Integer,
         result> {
-    static final private String API_KEY = "RGAPI-15a5aa85-d555-4c27-a96c-cec28fc7b414";
+    static final private String API_KEY = "RGAPI-acb860a4-7e6e-4796-baf2-9896b3e65c18";
     static private ApiConfig config;
     static protected RiotApi riot_api;
 
@@ -28,7 +28,7 @@ public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void
      */
     public NetworkTask(){
         //TODO: setup API here
-        Log.d("using API KEY", API_KEY);
+        Log.d("new network task using", API_KEY);
         config = new ApiConfig().setKey(API_KEY);
         riot_api = new RiotApi(config);
     }
@@ -38,7 +38,7 @@ public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void
      *
      * @return configured RiotApi object
      */
-    public RiotApi getAPI(){
+    public static RiotApi getAPI(){
         if(riot_api == null){
             Log.d("RIOT API", "api error");
             return null;
@@ -78,6 +78,39 @@ public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void
                 return Platform.TR;
             default:
                 return Platform.RU;
+        }
+    }
+
+    public static String getKey(){
+        return API_KEY;
+    }
+
+    protected String getEndPoint(String locale){
+        switch (locale){
+            case "BR" :
+                return "br1.api.riotgames.com";
+            case "EUNE":
+                return "eun1.api.riotgames.com";
+            case "EUW":
+                return "euw1.api.riotgames.com";
+            case "JP":
+                return "jp1.api.riotgames.com";
+            case "KR":
+                return "kr.api.riotgames.com";
+            case "LAN":
+                return "la1.api.riotgames.com";
+            case "LAS":
+                return "la2.api.riotgames.com";
+            case "NA":
+                return "na1.api.riotgames.com";
+            case "OCE":
+                return "oc1.api.riotgames.com";
+            case "TR":
+                return "tr1.api.riotgames.com";
+            case "PBE":
+                return "pbe1.api.riotgames.com";
+            default:
+                return "ru.api.riotgames.com";
         }
     }
 

@@ -27,6 +27,8 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import uoit.csci4100u.mobileapp.util.DatabaseHelperUtil;
 import uoit.csci4100u.mobileapp.util.LocationUtil;
@@ -76,8 +78,8 @@ public class Main extends AppCompatActivity {
     private GoogleApiClient locApi;
 
     private static Menu menu;
-    private MenuItem refreshItem;
-    private static boolean refreshAvail;
+
+    private static boolean refreshAvail = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,16 +190,13 @@ public class Main extends AppCompatActivity {
     }
 
 
-    private static String timeConversion(int totalSeconds) {
+    private static String timeConversion(long millis) {
 
-        final int MINUTES_IN_AN_HOUR = 60;
-        final int SECONDS_IN_A_MINUTE = 60;
+        String hms = String.format(Locale.getDefault(),"%02d:%02d",
 
-        int seconds = totalSeconds % SECONDS_IN_A_MINUTE;
-        int totalMinutes = totalSeconds / SECONDS_IN_A_MINUTE;
-        int minutes = totalMinutes % MINUTES_IN_AN_HOUR;
-
-        return minutes + ":" + seconds;
+                TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
+                TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
+        return hms;
     }
 
     public class DataDragonTask extends NetworkTask<String, Integer, Bitmap> {
@@ -228,13 +227,13 @@ public class Main extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Bitmap result) {
-            Log.d("DataDragon:end", "finished internet access");
+            Log.d("DataDragon:end", "finished data dragon access");
             icon.setImageBitmap(result);
         }
 
         @Override
         protected void onPreExecute() {
-            Log.d("DataDragon:start", "starting internet access");
+            Log.d("DataDragon:start", "starting data dragon access");
         }
     }
 
@@ -302,6 +301,7 @@ public class Main extends AppCompatActivity {
     public void checkConnection() {
         if (locUtil.getLocation() != null) {
             Log.d(TAG, locUtil.getLocation().toString());
+            Toast.makeText(this,locUtil.getLocation().toString(), Toast.LENGTH_SHORT).show();
         } else {
             Log.d(TAG, "something went wrong");
         }
@@ -310,6 +310,7 @@ public class Main extends AppCompatActivity {
     public void onRefreshClick() {
         if (refreshAvail) {
             updateUI();
+            Toast.makeText(this, R.string.ui_refresh, Toast.LENGTH_SHORT).show();
             startTimer(R.id.refresh_ui);
         } else {
             Toast.makeText(this, R.string.refresh_interval, Toast.LENGTH_SHORT).show();
@@ -323,13 +324,13 @@ public class Main extends AppCompatActivity {
             MenuItem temp = menu.findItem(item_id);
 
             public void onTick(long millisUntilFinished) {
-                temp.setTitle(timeConversion((int) (millisUntilFinished / 1000)));
+                temp.setTitle(timeConversion(millisUntilFinished));
             }
 
             public void onFinish() {
                 Log.d("timer", "finish");
                 temp.setTitle(R.string.refresh_avail);
-                refreshAvail = toggleBool(refreshAvail);
+                refreshAvail = true;
                 temp.setEnabled(true);
 
             }
@@ -342,6 +343,7 @@ public class Main extends AppCompatActivity {
             case R.id.refresh_ui:
                 onRefreshClick();
                 item.setEnabled(false);
+                refreshAvail = false;
                 return true;
             case R.id.check_conn:
                 checkConnection();
@@ -355,14 +357,12 @@ public class Main extends AppCompatActivity {
     }
 
     private void updateUI() {
-        refreshAvail = false;
         printSummonerToScreen(uSummoner);
         String welcome_format = getResources().getString(R.string.welcome_back);
         String welcome_message = String.format(welcome_format, uSummoner.getName());
         welcome_lbl.setText(welcome_message);
         getPlayStatus();
         new DataDragonTask().execute(uSummoner.getProfileIconId() + "");
-
     }
 
     public static Boolean toggleBool(Boolean current_setting){
