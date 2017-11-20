@@ -1,29 +1,38 @@
 package uoit.csci4100u.mobileapp.util;
 
+import android.Manifest;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
 /**
  * Created by jasdeep on 2017-11-06.
+ * Uses fused location provider to get location based updates
  *
- * used to listen for GPS based movement, set sensitivity based on MIN_DISTANCE and MIN_TIME
- * location must be received from LocationUpdate before things can be checked
+ * TODO: get current location on app launch
+ * TODO: create set home location method
  */
 
-//TODO: get current location on app launch
-//TODO: create set home location method
-//TODO: create check if at home method and call this in the on location changed to see
-// if still at home
-
-public class LocationUtil extends Service implements LocationListener {
+public class LocationUtil implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient
+        .OnConnectionFailedListener, com.google.android.gms.location.LocationListener {
     /**
      * Global Variable Declarations
      *
@@ -32,21 +41,22 @@ public class LocationUtil extends Service implements LocationListener {
      * MIN_DISTANCE = minimum distance to trigger LocationListener
      * MIN_TIME = minimum time to wait before checking location again
      * loc = current optimal location
-     * locManager = Location Manager object, contains methods related to Location
+     *
      * mContext = Context acquired from calling Activity
      */
-    private static final String TAG = "location util";
+    private static final String TAG = "Loc_Util";
     private Location loc;
-    public LocationManager locManager;
+    private LocationRequest mLocationRequest;
+    private GoogleApiClient mGoogleApiClient;
+    private Context mContext = null;
 
     //static time variables
     private static final int MILLISECONDS = 1000;
-    private static final int SECONDS = 60;
 
+    private static final int SECONDS = 60;
     // x2 makes it 2 minutes (1000 * 60 * 2ms)
-    private static final int MIN_TIME = MILLISECONDS * SECONDS * 2;
-    private static final int MIN_DISTANCE = 10;
-    private final Context mContext;
+    private static final int MIN_TIME = MILLISECONDS * SECONDS * 15;
+    private static final int MIN_DISTANCE = 50;
 
     /**
      * Default constructor for LocationUtil
@@ -55,22 +65,14 @@ public class LocationUtil extends Service implements LocationListener {
      */
     public LocationUtil(Context context) {
         this.mContext = context;
-        locManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        try {
-            locManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME, MIN_DISTANCE,
-                    this);
-        } catch (SecurityException e) {
-            Log.i(TAG, e.toString());
-        }
+        createLocationRequest();
+
     }
 
-
-    //TODO: implement the onBind method
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
+    public void setLocAPI(GoogleApiClient api){
+        this.mGoogleApiClient = api;
     }
+
 
     /**
      * Returns the current optimal location
@@ -86,10 +88,8 @@ public class LocationUtil extends Service implements LocationListener {
      *
      * @param location            The new Location that you want to evaluate
      * @param currentBestLocation The current Location fix, to which you want to compare the new one
-     *
      * @return True if the new Location is better then the current best Location
-     *         False if the new Location is worse then the current best Location
-     *
+     * False if the new Location is worse then the current best Location
      */
     protected boolean isBetterLocation(Location location, Location currentBestLocation) {
         if (currentBestLocation == null) {
@@ -148,25 +148,48 @@ public class LocationUtil extends Service implements LocationListener {
         if (isBetterLocation(location, loc)) {
             loc = location;
             //TODO: remove log after debugging
-            Log.d(TAG, loc.toString());
+            Log.d(TAG+":locationChange", loc.toString());
         }
     }
 
-    //TODO: implement what happens when the GPS status changes
-    @Override
-    public void onStatusChanged(String s, int i, Bundle bundle) {
-
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(MIN_TIME);
+        mLocationRequest.setFastestInterval(MILLISECONDS * 5);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_LOW_POWER);
     }
 
-    //TODO: implement what happens when the GPS provider is enabled
     @Override
-    public void onProviderEnabled(String s) {
-
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        // code to handle failed connection
+        // this code can be found here — http://developer.android.com/training/location/retrieve-current.html
     }
 
-    //TODO: implement what happens when the GPS provider is disabled
     @Override
-    public void onProviderDisabled(String s) {
+    public void onConnected(@Nullable Bundle bundle) {
+        startLocationUpdates();
+    }
+
+    protected void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        PendingResult<Status> pendingResult = LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
+        Log.d(TAG, "Location update started ..............: ");
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
 
     }
 }

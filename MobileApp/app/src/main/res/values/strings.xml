@@ -18,4 +18,11 @@
     <string name="availability">Are you available to play?</string>
     <string name="cant_play">Can\'t play right now</string>
     <string name="lets_play">Let\'s Play!</string>
+    <string name="net_start">Fetching Data&#8230;</string>
+    <string name="net_complete">Success</string>
+    <string name="net_error">Error Fetching Data from Internet</string>
+    <string name="refresh_interval">Please wait before refreshing&#8230;</string>
+    <string name="refresh_avail">Refresh</string>
+    <string name="connection">connection</string>
+    <string name="logout">Logout</string>
 </resources>

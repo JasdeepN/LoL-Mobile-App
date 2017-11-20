@@ -1,112 +1,170 @@
 package uoit.csci4100u.mobileapp;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
 
-import net.rithms.riot.api.ApiConfig;
-import net.rithms.riot.api.RiotApi;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
+
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import uoit.csci4100u.mobileapp.util.DatabaseHelperUtil;
 import uoit.csci4100u.mobileapp.util.LocationUtil;
+import uoit.csci4100u.mobileapp.util.NetworkTask;
+import uoit.csci4100u.mobileapp.util.OnGetDataListener;
 import uoit.csci4100u.mobileapp.util.PermissionChecker;
 
-import static java.security.AccessController.getContext;
 
 /**
  * Main method for App, handles setting up and receiving Activities/Results
  * <p>
- * currently uses temp development key for Riot API - check to see if key is still valid before
- * changing anything
- * <p>
- * Uses util Class PermissionChecker to check for android permissions
- * Uses util Class LocationUtil to listen for and respond to GPS changes
- * Uses Abstract class NetworkTask which contains methods needed for Riot's API calls
+ * TODO: currently uses temp development key for Riot API - check to see if key is still valid
+ * before changing anything
+ *
+ * @see PermissionChecker#getPermissions()          - to check is permissions are granted, if not asks for
+ * them
+ * @see LocationUtil                                - updates location information
+ * @see uoit.csci4100u.mobileapp.util.NetworkTask   - generic abstract class to handle most of the
+ * Async network tasks
+ * @see DatabaseHelperUtil                          - handles Firebase read and write
  */
 public class Main extends AppCompatActivity {
-    //temp dev key
-    static final String API_KEY = "RGAPI-61d7bd4d-a1b7-466c-bb7a-4c2d2d1385f2";
-    static String UUID = "";
-    static ApiConfig config = new ApiConfig().setKey(API_KEY);
-    static public RiotApi riot_api = new RiotApi(config);
+    static String mUUID = "";
     static final String TAG = "Main.java";
-    static final int REQUEST_SET_SUMMONER = 2;
+    static final private String BASE_DRAGON_URL = "http://ddragon.leagueoflegends.com/cdn/";
     static final int SUCCESS = 1;
     static final int FAILURE = 0;
     static final int CANCEL = -1;
-    public static boolean acquired;
+    public static boolean play_staus;
+    static String current_version;
     Bundle extras;
     TextView summoner_info;
     TextView welcome_lbl;
     ToggleButton avail_button;
+    ImageView icon;
+
     //the users summoner info
     protected static Summoner uSummoner;
+    static String locale;
 
     //New Location util
     private LocationUtil locUtil;
 
+
     //database helper
-    private DatabaseHelperUtil dbHelper;
+    private static DatabaseHelperUtil dbHelper;
+    private GoogleApiClient locApi;
+
+    private static Menu menu;
+    private MenuItem refreshItem;
+    private static boolean refreshAvail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        locUtil = new LocationUtil(this);
+        setupLocAPI();
         setUpLayouts();
     }
 
     @Override
     protected void onStart() {
         extras = getIntent().getExtras();
-        UUID = extras.getString("UUID");
+        mUUID = extras.getString("UUID");
+        locale = extras.getString("locale");
+        current_version = extras.getString("version");
+        Log.d("version recieved", current_version+"");
+        locApi.connect();
+        locUtil.setLocAPI(locApi);
 
-        //checks for permissions
-        new PermissionChecker(getBaseContext(), this).getPermissions();
-
-        //starts the location listener
-        locUtil = new LocationUtil(this);
-
-        dbHelper = new DatabaseHelperUtil();
-        acquired = false;
-
-        checkIfUserExists(UUID);
-
+        updateUI();
         super.onStart();
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_layout, menu);
+        return true;
+    }
+
+    @Override
+    protected void onResume() {
+        //update without having to relaunch app
+        super.onResume();
+    }
+
+    @Override
     protected void onStop() {
-        //ghost method left over from networkUtil
+        locApi.disconnect();
         super.onStop();
     }
 
+    private void setupLocAPI() {
+        locApi = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(locUtil)
+                .addOnConnectionFailedListener(locUtil)
+                .build();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        this.menu=menu;
+//        this.refreshItem = menu.getItem(0);
+//        startTimer(R.id.refresh_ui);
+//        refreshItem.setEnabled(false);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    public static void setDBHelper(DatabaseHelperUtil helper) {
+        dbHelper = helper;
+    }
+
+
     /**
      * Instantiates and assigns global variables related to the layout
+     * <p>
+     * TODO: make this set a Boolean on Firebase where true is looking for games and false is not
      */
-    public void setUpLayouts(){
+    public void setUpLayouts() {
         summoner_info = (TextView) findViewById(R.id.summoner_info);
         welcome_lbl = (TextView) findViewById(R.id.welcome_lbl);
         avail_button = (ToggleButton) findViewById(R.id.avail_button);
+        icon = (ImageView) findViewById(R.id.imageView);
 
         avail_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     // The toggle is enabled
                     Log.d("Toggle", "ON");
+
                 } else {
                     // The toggle is disabled
                     Log.d("Toggle", "OFF");
                 }
+                play_staus = toggleStatus(play_staus);
             }
         });
     }
@@ -122,70 +180,94 @@ public class Main extends AppCompatActivity {
                     "\nID: " + x.getId() + "\nLevel: " + x.getSummonerLevel() + "\nLast Modified:" +
                     x.getRevisionDate();
 
+
             this.summoner_info.setText(retString);
         } catch (NullPointerException e) {
             this.summoner_info.setText(R.string.cant_find_name);
         }
     }
 
+
+    private static String timeConversion(int totalSeconds) {
+
+        final int MINUTES_IN_AN_HOUR = 60;
+        final int SECONDS_IN_A_MINUTE = 60;
+
+        int seconds = totalSeconds % SECONDS_IN_A_MINUTE;
+        int totalMinutes = totalSeconds / SECONDS_IN_A_MINUTE;
+        int minutes = totalMinutes % MINUTES_IN_AN_HOUR;
+
+        return minutes + ":" + seconds;
+    }
+
+    public class DataDragonTask extends NetworkTask<String, Integer, Bitmap> {
+
+        @Override
+        protected Bitmap doInBackground(String... input) {
+            Bitmap bm = null;
+            try {
+
+                String tempUrl = BASE_DRAGON_URL + current_version + "/img/profileicon/" + input[0] + ".png";
+                Log.d("DataDragon:lookup", tempUrl + "");
+                URL url = new URL(tempUrl);
+
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.connect();
+                InputStream is = urlConnection.getInputStream();
+                BufferedInputStream bis = new BufferedInputStream(is);
+                bm = BitmapFactory.decodeStream(bis);
+                bis.close();
+                is.close();
+            } catch (java.net.MalformedURLException me) {
+                Log.d("URL ERROR", me + "");
+            } catch (java.io.IOException ie) {
+                Log.d("IO ERROR", ie + "");
+            }
+            return bm;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            Log.d("DataDragon:end", "finished internet access");
+            icon.setImageBitmap(result);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            Log.d("DataDragon:start", "starting internet access");
+        }
+    }
+
+
     /**
-     * Checks Firebase to see if there is a Summoner object saved with the users UUID, if it
-     * finds it launches the run() method
+     * gets the searching for game Boolean from the Firebase
      *
-     * @see Main#run()
-     * @see DatabaseHelperUtil#readData(DatabaseHelperUtil.OnGetDataListener)
-     * @param UUID unique user id
+     * @return Boolean True if the user is looking for a game and False if they are not
      */
-    private void checkIfUserExists(final String UUID) {
-        //tells the user whats happening
-        summoner_info.setText(R.string.async_task);
-        dbHelper.readData(new DatabaseHelperUtil.OnGetDataListener() {
+    private void getPlayStatus() {
+        dbHelper.getCurrentStatus(new OnGetDataListener() {
+
             @Override
             public void onSuccess(DataSnapshot dataSnapshot) {
-
-                Log.d("data GOT BACK", dataSnapshot.getValue() + "");
-                for (DataSnapshot dChild : dataSnapshot.getChildren()) {
-                    if (dChild.getKey().equals(UUID)) {
-                        Log.d(TAG, "child key >>> " + dChild.getKey());
-                        Log.d(TAG, "Summoner " + dChild.getValue(Summoner.class));
-                        setSummoner(dChild.getValue(Summoner.class));
-                        run();
-                        //if it hits this break found user
-                        break;
-                    }
-                }
-                //otherwise should hit this
-                run();
+                play_staus = dataSnapshot.getValue(Boolean.class);
+                Log.d("getPlayStatus", "received "+play_staus);
             }
 
             @Override
             public void onStart() {
-                //when starting
-                Log.d(TAG, "Started database read");
+                Log.d("getPlayStatus", "getting play status");
             }
 
             @Override
             public void onFailure() {
-                Log.d("onFailure", "Failed");
+
             }
         });
 
     }
 
-    /**
-     * Simply checks if the user has a Summoner object that is valid and prints the info to the
-     * screen; if the Summoner object is
-     */
-    private void run() {
-        if (acquired) {
-            printSummonerToScreen(uSummoner);
-            String welcome_format = getResources().getString(R.string.welcome_back);
-            String welcome_message = String.format(welcome_format, uSummoner.getName());
-            welcome_lbl.setText(welcome_message);
-        } else {
-            Intent setSummIntent = new Intent(Main.this, SetSummoner.class);
-            startActivityForResult(setSummIntent, REQUEST_SET_SUMMONER);
-        }
+    private Boolean toggleStatus(Boolean status) {
+        return dbHelper.togglePlay(status);
     }
 
 
@@ -204,23 +286,20 @@ public class Main extends AppCompatActivity {
      * @param you Summoner object belonging to the user
      */
     public static void setSummoner(Summoner you) {
-        Main.uSummoner = you;
-        acquired = true;
+        uSummoner = you;
     }
 
     //TODO: update this so it makes sense
-    public void temp_click(View v) {
-        Intent temp_intent = new Intent(Main.this, Champions.class);
-        startActivity(temp_intent);
+    public void logout() {
+//        Intent temp_intent = new Intent(Main.this, Champions.class);
+//        startActivity(temp_intent);
+        setResult(Login.RESULT_LOGOUT);
+        finish();
     }
 
-
-    public void onSetSummonerClicked(View v) {
-
-    }
 
     //TODO: remove this, this is a temporary onCLick method
-    public void checkConnection(View v) {
+    public void checkConnection() {
         if (locUtil.getLocation() != null) {
             Log.d(TAG, locUtil.getLocation().toString());
         } else {
@@ -228,13 +307,71 @@ public class Main extends AppCompatActivity {
         }
     }
 
+    public void onRefreshClick() {
+        if (refreshAvail) {
+            updateUI();
+            startTimer(R.id.refresh_ui);
+        } else {
+            Toast.makeText(this, R.string.refresh_interval, Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+    private static void startTimer(final int item_id){
+        Log.d("timer", "start");
+        new CountDownTimer(300000, 1000) {
+            MenuItem temp = menu.findItem(item_id);
+
+            public void onTick(long millisUntilFinished) {
+                temp.setTitle(timeConversion((int) (millisUntilFinished / 1000)));
+            }
+
+            public void onFinish() {
+                Log.d("timer", "finish");
+                temp.setTitle(R.string.refresh_avail);
+                refreshAvail = toggleBool(refreshAvail);
+                temp.setEnabled(true);
+
+            }
+        }.start();
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.refresh_ui:
+                onRefreshClick();
+                item.setEnabled(false);
+                return true;
+            case R.id.check_conn:
+                checkConnection();
+                return true;
+            case R.id.logout_option:
+                logout();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void updateUI() {
+        refreshAvail = false;
+        printSummonerToScreen(uSummoner);
+        String welcome_format = getResources().getString(R.string.welcome_back);
+        String welcome_message = String.format(welcome_format, uSummoner.getName());
+        welcome_lbl.setText(welcome_message);
+        getPlayStatus();
+        new DataDragonTask().execute(uSummoner.getProfileIconId() + "");
+
+    }
+
+    public static Boolean toggleBool(Boolean current_setting){
+        return  !current_setting;
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_SET_SUMMONER && resultCode == SUCCESS) {
-            Toast.makeText(this, R.string.lbl_set, Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "write to DB");
-            dbHelper.addUser(UUID, uSummoner);
-        } else if (resultCode == FAILURE) {
+        if (resultCode == FAILURE) {
             Log.d(TAG, "Error");
             Toast.makeText(this, R.string.lbl_set_fail, Toast.LENGTH_SHORT).show();
         } else {
