@@ -1,26 +1,20 @@
 package uoit.csci4100u.mobileapp;
 
 import android.content.Intent;
-import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
-import android.support.constraint.ConstraintSet;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -29,7 +23,6 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 
 import net.rithms.riot.api.RiotApi;
-import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 import java.util.HashMap;
@@ -45,30 +38,25 @@ public class Login extends AppCompatActivity {
     static final String TAG = "Login.java";
     static final int REQUEST_MAIN = 1;
     static final int RESULT_LOGOUT = 0;
-    static final String REGEX = "^[0-9/\\/\\p{L} _\\/\\/.]+$";
+    static final String SUMMONER_REGEX = "^[0-9/\\/\\p{L} _\\/\\/.]+$";
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private static String mUUID;
-    static String current_version;
-    static List<String> versions;
-    RiotApiTask networkTask;
-    String[] networkParam;
-    String[] locales;
+    private static String current_version, region, mUUID;
+    RiotApiTaskGetSummoner SummonerTask;
+    RiotApiTaskGetLiveVersion VersionTask;
+    String[] networkParam, locales;
     RiotApi riotApi;
-    LinearLayout summoner_line;
-    LinearLayout button_bar;
-    String region;
-    EditText email;
-    EditText pass;
-    EditText summoner;
+    LinearLayout summoner_line, button_bar;
+    EditText email, pass, summoner;
     TextView progress_label;
     ProgressBar progressBar;
+    private Summoner userSummoner;
     boolean can_play;
 
     //database helper
     private DatabaseHelperUtil dbHelper;
 
-    private static final int UPDATE_INTERVAL = 1000 * 60 * 5;
+    private static final int UPDATE_INTERVAL = 1000 * 60 * 5; //5 minutes
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,8 +88,9 @@ public class Login extends AppCompatActivity {
         locales = getResources().getStringArray(R.array.Region_Array);
         setupSpinner();
 
-        networkTask = new RiotApiTask();
-        riotApi = networkTask.getAPI();
+        SummonerTask = new RiotApiTaskGetSummoner();
+        VersionTask = new RiotApiTaskGetLiveVersion();
+        riotApi = NetworkTask.getAPI();
         networkParam = new String[2];
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -125,7 +114,6 @@ public class Login extends AppCompatActivity {
         super.onStart();
     }
 
-    //removes listener when we are done
     @Override
     public void onStop() {
         super.onStop();
@@ -163,16 +151,16 @@ public class Login extends AppCompatActivity {
         sItems.setAdapter(adapter);
     }
 
-    /**
+  /*  *//**
      * Creates toast with google play services version, useful for troubleshooting
-     */
-//    private void showGooglePlayServicesStatus() {
-//        GoogleApiAvailability apiAvail = GoogleApiAvailability.getInstance();
-//        int errorCode = apiAvail.isGooglePlayServicesAvailable(this);
-//        String msg = "Play Services: " + apiAvail.getErrorString(errorCode);
-//        Log.d(TAG, msg);
-//        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
-//    }
+     *//*
+    private void showGooglePlayServicesStatus() {
+        GoogleApiAvailability apiAvail = GoogleApiAvailability.getInstance();
+        int errorCode = apiAvail.isGooglePlayServicesAvailable(this);
+        String msg = "Play Services: " + apiAvail.getErrorString(errorCode);
+        Log.d(TAG, msg);
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+    }*/
 
     /**
      * onClick method for logging in normally, uses the signIn() method
@@ -215,30 +203,6 @@ public class Login extends AppCompatActivity {
     }
 
     /**
-     * runs the network task to get Summoner object from Riot Games server
-     *
-     * @param name name of the Summoner
-     * @return Summoner object from Riot's servers
-     */
-    public Summoner getSummoner(String name) {
-        name = name.trim();
-        if (name.matches(REGEX)) {
-            networkParam[1] = name;
-            //start the async task with blocking for result
-            try {
-                return (networkTask.execute().get());
-            } catch (java.util.concurrent.ExecutionException e) {
-                Log.d(TAG, e.toString());
-            } catch (java.lang.InterruptedException i) {
-                Log.d(TAG + ":getSummoner", i.toString());
-            }
-        } else {
-            Log.d(TAG, "regex fail");
-        }
-        return null;
-    }
-
-    /**
      * checks if edit text field is empty
      *
      * @param etText EditTextField to be checked
@@ -247,24 +211,6 @@ public class Login extends AppCompatActivity {
     private boolean isEmpty(EditText etText) {
         return etText.getText().toString().trim().length() == 0;
     }
-
-//    /**
-//     * Gets the current Firebase user
-//     */
-//    private void getCurrentUser() {
-//        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-//        if (user != null) {
-//            // Name, email address, and profile photo Url
-//            String name = user.getDisplayName();
-//            String email = user.getEmail();
-//            Uri photoUrl = user.getPhotoUrl();
-//
-//            // The user's ID, unique to the Firebase project. Do NOT use this value to
-//            // authenticate with your backend server, if you have one. Use
-//            // FirebaseUser.getToken() instead.
-//            String uid = user.getUid();
-//        }
-//    }
 
     /**
      * Sign in method used for Firebase authentication
@@ -290,21 +236,73 @@ public class Login extends AppCompatActivity {
                 });
     }
 
-    protected void updateSummoner(Summoner userSummoner, String Region) {
+    /**
+     * starts the async task to update the Summoner object from Riot's servers
+     *
+     * @param inputSummoner Summoner to update
+     * @param Region String region of the Summoner
+     */
+    protected void updateSummoner(Summoner inputSummoner, String Region) {
         Log.d("updating", "updating existing user");
         networkParam[0] = Region;
-        Summoner updated = getSummoner(userSummoner.getName());
-        Main.setSummoner(updated);
-        updateDB(updated, Region);
+        getSummoner(inputSummoner.getName());
     }
 
-    protected void updateDB(Summoner updated, String mRegion){
+    /**
+     * runs the network task to get Summoner object from Riot Games server
+     *
+     * @param name name of the Summoner
+     * @return Summoner object from Riot's servers
+     */
+    public Summoner getSummoner(String name) {
+        name = name.trim();
+        if (name.matches(SUMMONER_REGEX)) {
+            networkParam[1] = name;
+            //start the async task with blocking for result
+            try {
+                return userSummoner = (SummonerTask.execute().get());
+            } catch (java.util.concurrent.ExecutionException e) {
+                Log.d(TAG, e.toString());
+            } catch (java.lang.InterruptedException i) {
+                Log.d(TAG + ":getSummoner", i.toString());
+            }
+        } else {
+            Log.d(TAG, "regex fail");
+        }
+        Log.d("user update", "failed");
+        return userSummoner;
+    }
+
+    /**
+     * creates a map object with updated values for firebase
+     *
+     * @param updated updated summoner object
+     * @param mRegion region for the user
+     * @see   DatabaseHelperUtil#updateUser(Map<String, Object>)
+     */
+    protected void updateDB(Summoner updated, String mRegion) {
         Map<String, Object> temp = new HashMap<>();
         temp.put("summoner", updated);
         temp.put("can_play", can_play);
         temp.put("region", mRegion);
         temp.put("version", current_version);
+        temp.put("last_update", System.currentTimeMillis());
         dbHelper.updateUser(temp);
+    }
+
+    /**
+     * starts the async task to get game versions
+     *
+     * @param locale for the game version
+     */
+    private void updateVersion(String locale) {
+        try {
+            current_version = (VersionTask.execute(locale).get());
+        } catch (java.util.concurrent.ExecutionException e) {
+            Log.d(TAG, e.toString());
+        } catch (java.lang.InterruptedException i) {
+            Log.d(TAG + ":getVersion", i.toString());
+        }
     }
 
     /**
@@ -314,8 +312,8 @@ public class Login extends AppCompatActivity {
      * @param UUID unique user id
      * @see Login#updateSummoner(Summoner, String)
      * @see DatabaseHelperUtil#readDataSummoner(String, OnGetDataListener)
+     * @see Login#startMain()
      */
-
     private void checkIfUserExists(final String UUID) {
         dbHelper.readDataSummoner(UUID, new OnGetDataListener() {
             @Override
@@ -324,31 +322,35 @@ public class Login extends AppCompatActivity {
                 Summoner temp = dataSnapshot.child("summoner").getValue(Summoner.class);
                 try {
                     can_play = dataSnapshot.child("can_play").getValue(Boolean.class);
-                } catch (java.lang.NullPointerException ne){
+                } catch (java.lang.NullPointerException ne) {
                     can_play = false;
                 }
                 Long time = dataSnapshot.child("last_update").getValue(Long.class);
-                String region = dataSnapshot.child("region").getValue(String.class);
-                Log.d("region","got back " + region);
+                region = dataSnapshot.child("region").getValue(String.class);
+                current_version = dataSnapshot.child("version").getValue(String.class);
+                Log.d("region", "got back " + region);
+                Log.d("version", "got back " + current_version);
 
-                Log.d("time", time+"");
+                Log.d("time", time + "");
                 if (time != null && temp != null) {
                     if ((System.currentTimeMillis() - time) > UPDATE_INTERVAL) {
-                        Log.d("update time", System.currentTimeMillis() - time+"");
+                        Log.d("update time", System.currentTimeMillis() - time + "");
                         updateSummoner(temp, region);
                         return;
                     } else {
                         Log.d("existing user", "found user; no update");
-                        current_version = dataSnapshot.child("version").getValue(String.class);
-                        Main.setSummoner(temp);
+                        userSummoner = temp;
+                        //for auto login uncomment this
+                        startMain();
                     }
-                } else if (time == null){
+                } else if (time == null) {
                     Log.d("new user", "adding new user");
+                    //TODO: update version here
                 }
-                if (temp != null) {
-                    Log.d("checkUser", "Starting main from check if user exists");
-                    startMain();
-                }
+//                if (userSummoner != null) {
+//                    Log.d("checkUser", "Starting main from check if user exists");
+//                    startMain();
+//                }
             }
 
             @Override
@@ -373,7 +375,7 @@ public class Login extends AppCompatActivity {
     private void createAccount(String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    Summoner userSummoner;
+                    Summoner newSummoner;
 
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -388,13 +390,13 @@ public class Login extends AppCompatActivity {
 
                             mUUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
                             dbHelper.setUUID(mUUID);
-                            //TODO: check for summoner name otherwise block
-                            userSummoner = getSummoner(summoner.getText().toString());
+                            updateVersion(networkParam[0]);
+                            newSummoner = getSummoner(summoner.getText().toString());
 
-                            dbHelper.addUser(userSummoner, networkParam[0], current_version);
-                            Log.d(TAG + "version", current_version+"");
+                            dbHelper.addUser(newSummoner, networkParam[0], current_version);
+                            Log.d(TAG + " version", current_version + "");
 
-                            Main.setSummoner(userSummoner);
+                            userSummoner = newSummoner;
 //                            Log.d(TAG + "createAccoun", "error no matching summoner");
                             //... other things
                         }
@@ -405,25 +407,22 @@ public class Login extends AppCompatActivity {
 
     /**
      * Extends NetworkTask so we can have access to the methods in it
-     * <p>
-     * Queries the Riot API if a valid Summoner name is provided and saves the returned Summoner
-     * to the Summoner object in the Main method
+     *
+     * Queries the Riot API if a valid Summoner name is provided returns the Summoner
      */
-    public class RiotApiTask extends NetworkTask<Void, Integer, Summoner> {
+    public class RiotApiTaskGetSummoner extends NetworkTask<Void, Integer, Summoner> {
         Summoner summoner;
 
         //TODO: remove logs when done testing this method
 
         @Override
-        protected Summoner doInBackground(Void[] input) {
-            Log.d("async task", "Started");
+        protected Summoner doInBackground(Void... input) {
             publishProgress(1);
             try {
                 Log.d("networkParam 1", networkParam[0] + "");
                 Log.d("networkParam 2", networkParam[1] + "");
                 publishProgress(2);
                 summoner = riot_api.getSummonerByName(checkPlatform(networkParam[0]), networkParam[1]);
-                versions = riot_api.getDataVersions(checkPlatform(networkParam[0]));
 
             } catch (net.rithms.riot.api.RiotApiException e) {
                 Log.d("RIOT API", e.toString());
@@ -439,33 +438,82 @@ public class Login extends AppCompatActivity {
         }
 
         @Override
-        public void onPostExecute(Summoner result) {
-            Log.d(TAG + ":postExecute", "Starting main");
-            if (result != null) {
-                Main.setSummoner(result);
-                progress_label.setText(R.string.net_complete);
-                //TODO: make progress bar invisible and return buttons
-//                progressBar.setVisibility(View.GONE);
-                button_bar.setVisibility(View.VISIBLE);
-                current_version = versions.get(0);
-                Log.d("Version", current_version);
-                updateDB(result, networkParam[0]);
-                //Entry point to main
-                startMain();
-            } else {
-                progress_label.setText(R.string.net_error);
-                Toast.makeText(getBaseContext(), "could not find that summoner", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        @Override
         protected void onPreExecute() {
+            Log.d("async:preExecute", "Starting async task get summoner");
+
             progressBar.setProgress(0);
             progress_label.setText(R.string.net_start);
             button_bar.setVisibility(View.GONE);
             progressBar.setVisibility(View.VISIBLE);
             progress_label.setVisibility(View.VISIBLE);
+        }
 
+
+        @Override
+        public void onPostExecute(Summoner result) {
+            Log.d("async:postExecute", "finished async task get summoner");
+            if (result != null) {
+                userSummoner = result;
+                progress_label.setText(R.string.net_complete);
+
+                button_bar.setVisibility(View.VISIBLE);
+                updateDB(userSummoner, networkParam[0]);
+
+                //Entry point to main
+                Log.d("async:postExecute", "have everything; stating main");
+                startMain();
+            } else {
+                progress_label.setText(R.string.net_error);
+                button_bar.setVisibility(View.VISIBLE);
+                Toast.makeText(getBaseContext(), "could not find that summoner", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+    /**
+     * Extends network task so we can access the internal methods
+     *
+     * gets all versions of the game in List<String> form
+     */
+    public class RiotApiTaskGetLiveVersion extends NetworkTask<String, Void, String> {
+        List<String> versions;
+
+        //TODO: remove logs when done testing this method
+
+        @Override
+        protected String doInBackground(String... input) {
+            try {
+                String locale = input[0];
+                Log.d("networkParam 1", locale + "");
+                versions = riot_api.getDataVersions(checkPlatform(networkParam[0]));
+            } catch (net.rithms.riot.api.RiotApiException e) {
+                Log.d("RIOT API", e.toString());
+            }
+            return versions.get(0);
+        }
+
+        @Override
+        public void onPostExecute(String result) {
+            Log.d("async:postExecute", "finished async task get version");
+            if (result != null) {
+                progress_label.setText(R.string.net_complete);
+
+                button_bar.setVisibility(View.VISIBLE);
+                current_version = result;
+
+                Log.d("Version", current_version + "");
+//                updateDB(userSummoner, networkParam[0]);
+            } else {
+                progress_label.setText(R.string.net_error);
+                Toast.makeText(getBaseContext(), "could not complete get version", Toast
+                        .LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            Log.d("async:preExecute", "Starting async task get version");
         }
 
     }
@@ -477,6 +525,7 @@ public class Login extends AppCompatActivity {
         intent.putExtra("locale", networkParam[0]);
         intent.putExtra("version", current_version);
         Main.setDBHelper(dbHelper);
+        Main.setSummoner(userSummoner);
 //        Main.setDBRef(dbHelper.getUserRef(mUUID));
         startActivityForResult(intent, REQUEST_MAIN);
     }
