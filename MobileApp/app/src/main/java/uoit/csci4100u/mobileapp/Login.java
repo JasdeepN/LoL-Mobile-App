@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -52,6 +53,7 @@ public class Login extends AppCompatActivity {
     ProgressBar progressBar;
     private Summoner userSummoner;
     boolean can_play;
+    Button btnLogin;
 
     //database helper
     private DatabaseHelperUtil dbHelper;
@@ -84,6 +86,7 @@ public class Login extends AppCompatActivity {
         summoner_line = (LinearLayout) findViewById(R.id.summoner_line);
         button_bar = (LinearLayout) findViewById(R.id.button_bar);
         summoner_line.setVisibility(View.GONE);
+        btnLogin = (Button) findViewById(R.id.login_button);
 
         locales = getResources().getStringArray(R.array.Region_Array);
         setupSpinner();
@@ -193,6 +196,7 @@ public class Login extends AppCompatActivity {
      */
     public void onCreateClick(View v) {
         summoner_line.setVisibility(View.VISIBLE);
+        btnLogin.setEnabled(false);
 
         if (!isEmpty(email) && !isEmpty(pass) && !isEmpty(summoner)) {
             createAccount(email.getText().toString(), pass.getText().toString());
@@ -386,6 +390,11 @@ public class Login extends AppCompatActivity {
                         if (!task.isSuccessful()) {
                             Toast.makeText(Login.this, R.string.new_account_failure,
                                     Toast.LENGTH_SHORT).show();
+                            //email.setText("");
+                            pass.setText("");
+                            summoner.setText("");
+                           summoner_line.setVisibility(View.INVISIBLE);
+                           btnLogin.setEnabled(true);
                         } else {
 
                             mUUID = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -402,7 +411,6 @@ public class Login extends AppCompatActivity {
                         }
                     }
                 });
-
     }
 
     /**
