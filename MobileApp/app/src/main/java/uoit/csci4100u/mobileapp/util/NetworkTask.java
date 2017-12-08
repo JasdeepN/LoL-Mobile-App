@@ -12,13 +12,15 @@ import java.util.concurrent.Callable;
 
 /**
  * Created by jasdeep on 2017-11-06.
- *
+ * <p>
  * Methods that are common across all NetworkTasks go here
  */
 
 public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void, Integer,
         result> {
-    static final private String API_KEY = "RGAPI-4d53deae-b96e-486f-922a-ab40334fa747";
+
+    static final private String API_KEY = "RGAPI-a9171a54-d15b-48ea-880f-02f67a4889bd";
+
     static private ApiConfig config;
     static protected RiotApi riot_api;
 
@@ -26,7 +28,7 @@ public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void
     /**
      * Default constructor - sets up Api config and instantiates new RiotApi object
      */
-    public NetworkTask(){
+    public NetworkTask() {
         //TODO: setup API here
         Log.d("new network task using", API_KEY);
         config = new ApiConfig().setKey(API_KEY);
@@ -38,8 +40,8 @@ public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void
      *
      * @return configured RiotApi object
      */
-    public static RiotApi getAPI(){
-        if(riot_api == null){
+    public static RiotApi getAPI() {
+        if (riot_api == null) {
             Log.d("RIOT API", "api error");
             return null;
         } else {
@@ -55,8 +57,8 @@ public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void
      * @return Platform object that matches the locale
      */
     protected Platform checkPlatform(String locale) {
-        switch (locale){
-            case "BR" :
+        switch (locale) {
+            case "BR":
                 return Platform.BR;
             case "EUNE":
                 return Platform.EUNE;
@@ -81,13 +83,13 @@ public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void
         }
     }
 
-    public static String getKey(){
+    public static String getKey() {
         return API_KEY;
     }
 
-    protected String getEndPoint(String locale){
-        switch (locale){
-            case "BR" :
+    protected String getEndPoint(String locale) {
+        switch (locale) {
+            case "BR":
                 return "br1.api.riotgames.com";
             case "EUNE":
                 return "eun1.api.riotgames.com";
