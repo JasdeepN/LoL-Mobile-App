@@ -18,7 +18,7 @@ import java.util.concurrent.Callable;
 
 public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void, Integer,
         result> {
-    static final private String API_KEY = "RGAPI-acb860a4-7e6e-4796-baf2-9896b3e65c18";
+    static final private String API_KEY = "RGAPI-4d53deae-b96e-486f-922a-ab40334fa747";
     static private ApiConfig config;
     static protected RiotApi riot_api;
 

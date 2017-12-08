@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -96,7 +97,7 @@ public class Main extends AppCompatActivity {
         mUUID = extras.getString("UUID");
         locale = extras.getString("locale");
         current_version = extras.getString("version");
-        Log.d("version recieved", current_version+"");
+        Log.d("version recieved", current_version + "");
         locApi.connect();
         locUtil.setLocAPI(locApi);
 
@@ -133,7 +134,7 @@ public class Main extends AppCompatActivity {
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        this.menu=menu;
+        this.menu = menu;
 //        this.refreshItem = menu.getItem(0);
 //        startTimer(R.id.refresh_ui);
 //        refreshItem.setEnabled(false);
@@ -166,6 +167,12 @@ public class Main extends AppCompatActivity {
                     // The toggle is disabled
                     Log.d("Toggle", "OFF");
                 }
+//                play_staus = toggleStatus(play_staus);
+            }
+        });
+        avail_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 play_staus = toggleStatus(play_staus);
             }
         });
@@ -192,7 +199,7 @@ public class Main extends AppCompatActivity {
 
     private static String timeConversion(long millis) {
 
-        String hms = String.format(Locale.getDefault(),"%02d:%02d",
+        String hms = String.format(Locale.getDefault(), "%02d:%02d",
 
                 TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis)),
                 TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
@@ -249,7 +256,8 @@ public class Main extends AppCompatActivity {
             @Override
             public void onSuccess(DataSnapshot dataSnapshot) {
                 play_staus = dataSnapshot.getValue(Boolean.class);
-                Log.d("getPlayStatus", "received "+play_staus);
+                avail_button.setChecked(play_staus);
+                Log.d("getPlayStatus", "received " + play_staus);
             }
 
             @Override
@@ -301,7 +309,7 @@ public class Main extends AppCompatActivity {
     public void checkConnection() {
         if (locUtil.getLocation() != null) {
             Log.d(TAG, locUtil.getLocation().toString());
-            Toast.makeText(this,locUtil.getLocation().toString(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, locUtil.getLocation().toString(), Toast.LENGTH_SHORT).show();
         } else {
             Log.d(TAG, "something went wrong");
         }
@@ -318,7 +326,7 @@ public class Main extends AppCompatActivity {
         }
     }
 
-    private static void startTimer(final int item_id){
+    private static void startTimer(final int item_id) {
         Log.d("timer", "start");
         new CountDownTimer(300000, 1000) {
             MenuItem temp = menu.findItem(item_id);
@@ -336,6 +344,7 @@ public class Main extends AppCompatActivity {
             }
         }.start();
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
@@ -365,8 +374,8 @@ public class Main extends AppCompatActivity {
         new DataDragonTask().execute(uSummoner.getProfileIconId() + "");
     }
 
-    public static Boolean toggleBool(Boolean current_setting){
-        return  !current_setting;
+    public static Boolean toggleBool(Boolean current_setting) {
+        return !current_setting;
     }
 
     @Override
