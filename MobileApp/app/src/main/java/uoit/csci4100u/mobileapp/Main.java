@@ -2,7 +2,6 @@ package uoit.csci4100u.mobileapp;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,23 +19,20 @@ import android.widget.ToggleButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
 
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
+import net.rithms.riot.constant.Platform;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+import uoit.csci4100u.mobileapp.tasks.DataDragonTask;
+import uoit.csci4100u.mobileapp.tasks.GetMatches;
 import uoit.csci4100u.mobileapp.util.DatabaseHelperUtil;
 import uoit.csci4100u.mobileapp.util.LocationUtil;
 import uoit.csci4100u.mobileapp.util.NetworkTask;
 import uoit.csci4100u.mobileapp.util.OnGetDataListener;
 import uoit.csci4100u.mobileapp.util.PermissionChecker;
-
 
 /**
  * Main method for App, handles setting up and receiving Activities/Results
@@ -54,25 +50,24 @@ import uoit.csci4100u.mobileapp.util.PermissionChecker;
 public class Main extends AppCompatActivity {
     static String mUUID = "";
     static final String TAG = "Main.java";
-    static final private String BASE_DRAGON_URL = "http://ddragon.leagueoflegends.com/cdn/";
     static final int SUCCESS = 1;
     static final int FAILURE = 0;
     static final int CANCEL = -1;
     public static boolean play_staus;
-    static String current_version;
+    //current game version
+    public static String current_version;
     Bundle extras;
     TextView summoner_info;
     TextView welcome_lbl;
     ToggleButton avail_button;
-    ImageView icon;
+    static ImageView icon;
 
     //the users summoner info
     protected static Summoner uSummoner;
-    static String locale;
+    public static Platform locale;
 
     //New Location util
     private LocationUtil locUtil;
-
 
     //database helper
     private static DatabaseHelperUtil dbHelper;
@@ -95,9 +90,11 @@ public class Main extends AppCompatActivity {
     protected void onStart() {
         extras = getIntent().getExtras();
         mUUID = extras.getString("UUID");
-        locale = extras.getString("locale");
+        String temp = extras.getString("locale");
+        Log.d("temp", temp+"");
+        locale = NetworkTask.checkPlatform(temp);
         current_version = extras.getString("version");
-        Log.d("version recieved", current_version + "");
+        Log.d("version received", current_version + "");
         locApi.connect();
         locUtil.setLocAPI(locApi);
 
@@ -206,43 +203,6 @@ public class Main extends AppCompatActivity {
         return hms;
     }
 
-    public class DataDragonTask extends NetworkTask<String, Integer, Bitmap> {
-
-        @Override
-        protected Bitmap doInBackground(String... input) {
-            Bitmap bm = null;
-            try {
-
-                String tempUrl = BASE_DRAGON_URL + current_version + "/img/profileicon/" + input[0] + ".png";
-                Log.d("DataDragon:lookup", tempUrl + "");
-                URL url = new URL(tempUrl);
-
-                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.connect();
-                InputStream is = urlConnection.getInputStream();
-                BufferedInputStream bis = new BufferedInputStream(is);
-                bm = BitmapFactory.decodeStream(bis);
-                bis.close();
-                is.close();
-            } catch (java.net.MalformedURLException me) {
-                Log.d("URL ERROR", me + "");
-            } catch (java.io.IOException ie) {
-                Log.d("IO ERROR", ie + "");
-            }
-            return bm;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            Log.d("DataDragon:end", "finished data dragon access");
-            icon.setImageBitmap(result);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            Log.d("DataDragon:start", "starting data dragon access");
-        }
-    }
 
 
     /**
@@ -298,8 +258,6 @@ public class Main extends AppCompatActivity {
 
     //TODO: update this so it makes sense
     public void logout() {
-//        Intent temp_intent = new Intent(Main.this, Champions.class);
-//        startActivity(temp_intent);
         setResult(Login.RESULT_LOGOUT);
         finish();
     }
@@ -372,10 +330,17 @@ public class Main extends AppCompatActivity {
         welcome_lbl.setText(welcome_message);
         getPlayStatus();
         new DataDragonTask().execute(uSummoner.getProfileIconId() + "");
+        new GetMatches().execute(uSummoner);
     }
+
+
 
     public static Boolean toggleBool(Boolean current_setting) {
         return !current_setting;
+    }
+
+    public static void setIcon(Bitmap result){
+        icon.setImageBitmap(result);
     }
 
     @Override

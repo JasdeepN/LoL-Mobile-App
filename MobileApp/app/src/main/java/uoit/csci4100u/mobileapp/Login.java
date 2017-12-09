@@ -319,6 +319,7 @@ public class Login extends AppCompatActivity {
      * @see Login#startMain()
      */
     private void checkIfUserExists(final String UUID) {
+
         dbHelper.readDataSummoner(UUID, new OnGetDataListener() {
             @Override
             public void onSuccess(DataSnapshot dataSnapshot) {
@@ -344,6 +345,7 @@ public class Login extends AppCompatActivity {
                     } else {
                         Log.d("existing user", "found user; no update");
                         userSummoner = temp;
+                        networkParam[0] = region;
                         //for auto login uncomment this
                         startMain();
                     }

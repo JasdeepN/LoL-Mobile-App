@@ -56,7 +56,7 @@ public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void
      * @param locale which region the Summoner is in
      * @return Platform object that matches the locale
      */
-    protected Platform checkPlatform(String locale) {
+   static public Platform checkPlatform(String locale) {
         switch (locale) {
             case "BR":
                 return Platform.BR;
@@ -87,7 +87,7 @@ public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void
         return API_KEY;
     }
 
-    protected String getEndPoint(String locale) {
+    static public String getEndPoint(String locale) {
         switch (locale) {
             case "BR":
                 return "br1.api.riotgames.com";
