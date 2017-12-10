@@ -11,6 +11,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,14 +21,18 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DataSnapshot;
 
+import net.rithms.riot.api.endpoints.match.dto.Match;
+import net.rithms.riot.api.endpoints.match.dto.MatchReference;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import uoit.csci4100u.mobileapp.tasks.DataDragonTask;
 import uoit.csci4100u.mobileapp.tasks.GetMatches;
+import uoit.csci4100u.mobileapp.tasks.MatchInfo;
 import uoit.csci4100u.mobileapp.util.DatabaseHelperUtil;
 import uoit.csci4100u.mobileapp.util.LocationUtil;
 import uoit.csci4100u.mobileapp.util.NetworkTask;
@@ -53,6 +58,7 @@ public class Main extends AppCompatActivity {
     static final int SUCCESS = 1;
     static final int FAILURE = 0;
     static final int CANCEL = -1;
+    public static List<Match> recentMatches;
     public static boolean play_staus;
     //current game version
     public static String current_version;
@@ -341,6 +347,20 @@ public class Main extends AppCompatActivity {
 
     public static void setIcon(Bitmap result){
         icon.setImageBitmap(result);
+    }
+
+    public static void setMatchList(List<MatchReference> matches){
+        Log.d("Main:setMatchList", "got recent matches");
+        int count = 0;
+        for (MatchReference x :
+                matches) {
+            if (count < 5) {
+                Log.d("Match" + count, x.toString());
+                new MatchInfo().execute(x.getGameId());
+                count++;
+            }
+
+        }
     }
 
     @Override

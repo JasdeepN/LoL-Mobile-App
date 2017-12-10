@@ -58,6 +58,9 @@
     <ExpandableListView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:childDivider="#0f0"
+        android:divider="#f00"
+        android:dividerHeight="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

@@ -4,10 +4,12 @@ import android.util.Log;
 
 import net.rithms.riot.api.endpoints.match.dto.Match;
 import net.rithms.riot.api.endpoints.match.dto.MatchList;
+import net.rithms.riot.api.endpoints.match.dto.MatchReference;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 import java.util.List;
 
+import uoit.csci4100u.mobileapp.Main;
 import uoit.csci4100u.mobileapp.util.NetworkTask;
 
 import static uoit.csci4100u.mobileapp.Main.locale;
@@ -35,14 +37,9 @@ public class GetMatches extends NetworkTask<Summoner, Integer, MatchList> {
     protected void onPostExecute(MatchList result) {
         Log.d("matches:end", "finished getting matches");
 //            displayMatches(result);
-        Log.d("matches", result.getMatches()+"");
-//        for (int i = 0; i < 20; i++) {
-//            Log.d("match", result[0].toString());
-//        }
-//        for (Match x :
-//                result) {
-//            Log.d("Match", x);
-//        }
+//        Log.d("matches", result.getMatches()+"");
+        List<MatchReference> matches = result.getMatches();
+        Main.setMatchList(matches);
     }
 
 
