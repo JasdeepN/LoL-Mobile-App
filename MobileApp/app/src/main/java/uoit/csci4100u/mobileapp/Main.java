@@ -26,6 +26,7 @@ import net.rithms.riot.api.endpoints.match.dto.MatchReference;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -58,6 +59,7 @@ public class Main extends AppCompatActivity {
     static final int SUCCESS = 1;
     static final int FAILURE = 0;
     static final int CANCEL = -1;
+    static final int REQUEST_PLAYERS = 2;
     public static List<Match> recentMatches;
     public static boolean play_staus;
     //current game version
@@ -76,7 +78,7 @@ public class Main extends AppCompatActivity {
     private LocationUtil locUtil;
 
     //database helper
-    private static DatabaseHelperUtil dbHelper;
+    public static DatabaseHelperUtil dbHelper;
     private GoogleApiClient locApi;
 
     private static Menu menu;
@@ -94,10 +96,11 @@ public class Main extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+        recentMatches = new ArrayList<Match>();
         extras = getIntent().getExtras();
         mUUID = extras.getString("UUID");
         String temp = extras.getString("locale");
-        Log.d("temp", temp+"");
+        Log.d("temp", temp + "");
         locale = NetworkTask.checkPlatform(temp);
         current_version = extras.getString("version");
         Log.d("version received", current_version + "");
@@ -208,7 +211,6 @@ public class Main extends AppCompatActivity {
                 TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
         return hms;
     }
-
 
 
     /**
@@ -324,9 +326,17 @@ public class Main extends AppCompatActivity {
             case R.id.logout_option:
                 logout();
                 return true;
+            case R.id.other_players:
+                launchOtherPlayers();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void launchOtherPlayers() {
+        Intent intent = new Intent(Main.this, Players.class);
+        startActivityForResult(intent, REQUEST_PLAYERS);
     }
 
     private void updateUI() {
@@ -337,23 +347,18 @@ public class Main extends AppCompatActivity {
         getPlayStatus();
         new DataDragonTask().execute(uSummoner.getProfileIconId() + "");
         new GetMatches().execute(uSummoner);
+        refreshAvail = false;
     }
 
 
-
-    public static Boolean toggleBool(Boolean current_setting) {
-        return !current_setting;
-    }
-
-    public static void setIcon(Bitmap result){
+    public static void setIcon(Bitmap result) {
         icon.setImageBitmap(result);
     }
 
-    public static void setMatchList(List<MatchReference> matches){
+    public static void setMatchList(List<MatchReference> matches) {
         Log.d("Main:setMatchList", "got recent matches");
         int count = 0;
-        for (MatchReference x :
-                matches) {
+        for (MatchReference x : matches) {
             if (count < 5) {
                 Log.d("Match" + count, x.toString());
                 new MatchInfo().execute(x.getGameId());
@@ -368,8 +373,9 @@ public class Main extends AppCompatActivity {
         if (resultCode == FAILURE) {
             Log.d(TAG, "Error");
             Toast.makeText(this, R.string.lbl_set_fail, Toast.LENGTH_SHORT).show();
-        } else {
-            Log.d(TAG, "other result");
+        } else if (requestCode == REQUEST_PLAYERS && resultCode == SUCCESS) {
+            Log.d(TAG, "returned from other players sucessfully");
+
         }
         super.onActivityResult(requestCode, resultCode, data);
     }

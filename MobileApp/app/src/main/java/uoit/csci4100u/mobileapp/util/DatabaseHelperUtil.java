@@ -126,6 +126,20 @@ public class DatabaseHelperUtil implements DatabaseReference.CompletionListener{
         });
     }
 
+    public void getAllUsers(final OnGetDataListener listener){
+        mDatabaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listener.onSuccess(dataSnapshot);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                listener.onFailure();
+            }
+        });
+    }
+
 
     //TODO: toggle method
     public Boolean togglePlay(Boolean current_setting){

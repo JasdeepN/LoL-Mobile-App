@@ -2,16 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="uoit.csci4100u.mobileapp">
 
-    <!--Permissions-->
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
-    <!--don't have to explicitly get this anymore-->
+    <!-- don't have to explicitly get this anymore -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
-
-    <!--Application Manifest stuff-->
+    <!-- Application Manifest stuff -->
     <application
         android:allowBackup="true"
         android:icon="@mipmap/icon"
@@ -19,7 +18,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <!--Starts the login activity before going to main-->
+
+        <!-- Starts the login activity before going to main -->
         <activity android:name=".Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -32,7 +32,8 @@
                 <action android:name="android.intent.action.MAIN"/>
             </intent-filter>
         </activity>
-
+        <activity android:name=".Players">
+        </activity>
     </application>
 
 </manifest>

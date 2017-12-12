@@ -20,4 +20,10 @@
         android:icon="@drawable/ic_close_black_24dp"
         app:showAsAction="ifRoom"/>
 
+    <item
+        android:id="@+id/other_players"
+        android:title="@string/other_players"
+        android:icon="@drawable/ic_people_black_24dp"
+        app:showAsAction="ifRoom"/>
+
 </menu>
