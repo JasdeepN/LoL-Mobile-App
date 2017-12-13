@@ -33,5 +33,7 @@
     <string name="match_map">Map: %1$s</string>
     <string name="match_time">Game Time: %1$s</string>
     <string name="summoner_icon">summoner icon</string>
-
+    <string name="display_champions">Champions</string>
+    <string name="txtChampHint">Enter in a champion</string>
+    <string name="btnSearch">Search</string>
 </resources>

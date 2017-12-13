@@ -423,4 +423,11 @@ public class Main extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    //class made to go to layout to display the list of champions
+    public void gotoChampions(View source)
+    {
+        Intent displayChamps = new Intent(Main.this, Champions.class);
+        startActivityForResult(displayChamps, 101);
+    }
+
 }
