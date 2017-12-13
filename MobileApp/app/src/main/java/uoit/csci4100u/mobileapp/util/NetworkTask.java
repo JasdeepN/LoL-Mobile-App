@@ -20,6 +20,7 @@ public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void
         result> {
 
     static final private String API_KEY = "RGAPI-4d53deae-b96e-486f-922a-ab40334fa747";
+    static protected final String BASE_DRAGON_URL = "http://ddragon.leagueoflegends.com/cdn/";
 
     static private ApiConfig config;
     static protected RiotApi riot_api;

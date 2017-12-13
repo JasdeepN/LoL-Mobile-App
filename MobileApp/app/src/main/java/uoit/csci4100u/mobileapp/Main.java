@@ -22,22 +22,20 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DataSnapshot;
 
-import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.match.dto.Match;
+import net.rithms.riot.api.endpoints.match.dto.MatchList;
 import net.rithms.riot.api.endpoints.match.dto.MatchReference;
-import net.rithms.riot.api.endpoints.static_data.dto.Champion;
 import net.rithms.riot.api.endpoints.static_data.dto.ChampionList;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
 
-import java.nio.charset.spi.CharsetProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import uoit.csci4100u.mobileapp.tasks.ChampionTask;
+import uoit.csci4100u.mobileapp.tasks.ChampionListTask;
 import uoit.csci4100u.mobileapp.tasks.GetMatches;
 import uoit.csci4100u.mobileapp.tasks.MatchInfo;
 import uoit.csci4100u.mobileapp.tasks.ProfileIconTask;
@@ -67,9 +65,9 @@ public class Main extends AppCompatActivity {
     static final int FAILURE = 0;
     static final int CANCEL = -1;
     static final int REQUEST_PLAYERS = 2;
-    static ChampionList champions;
     static ArrayList<Match> recentMatches;
     public static boolean play_staus;
+    public static ChampionList champions;
     public static String reigon;
     //current game version
     public static String current_version;
@@ -77,6 +75,7 @@ public class Main extends AppCompatActivity {
     Bundle extras;
     TextView summoner_info;
     TextView welcome_lbl;
+    TextView fetching;
     ToggleButton avail_button;
     static ImageView icon;
 
@@ -108,6 +107,11 @@ public class Main extends AppCompatActivity {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
     protected void onStart() {
         recentMatches = new ArrayList<Match>();
         recentMatches.clear();
@@ -115,20 +119,16 @@ public class Main extends AppCompatActivity {
         extras = getIntent().getExtras();
         mUUID = extras.getString("UUID");
         reigon = extras.getString("locale");
-        Log.d("temp", reigon + "");
         locale = NetworkTask.checkPlatform(reigon);
         current_version = extras.getString("version");
+        new ChampionListTask().execute(reigon);
+
         Log.d("version received", current_version + "");
+
         locApi.connect();
         locUtil.setLocAPI(locApi);
         updateUI();
-        try {
-            champions = new ChampionTask().execute(reigon).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+
         super.onStart();
     }
 
@@ -149,6 +149,10 @@ public class Main extends AppCompatActivity {
     protected void onStop() {
         locApi.disconnect();
         super.onStop();
+    }
+
+    public static void setChampList(ChampionList result){
+        champions = result;
     }
 
     private void setupLocAPI() {
@@ -181,10 +185,12 @@ public class Main extends AppCompatActivity {
     public void setUpLayouts() {
         summoner_info = (TextView) findViewById(R.id.summoner_info);
         welcome_lbl = (TextView) findViewById(R.id.welcome_lbl);
+        fetching = (TextView) findViewById(R.id.fetch_text);
         avail_button = (ToggleButton) findViewById(R.id.avail_button);
-        icon = (ImageView) findViewById(R.id.imageView);
+        icon = (ImageView) findViewById(R.id.summoner_icon);
         matchList = (ListView) findViewById(R.id.matches);
         matchList.setAdapter(mAdapter);
+        matchList.setVisibility(View.GONE);
 
 
         avail_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -309,7 +315,7 @@ public class Main extends AppCompatActivity {
 
     public void onRefreshClick() {
         if (refreshAvail) {
-            updateUI();
+            forceUpdateUI();
             Toast.makeText(this, R.string.ui_refresh, Toast.LENGTH_SHORT).show();
             startTimer(R.id.refresh_ui);
         } else {
@@ -366,14 +372,31 @@ public class Main extends AppCompatActivity {
     }
 
     private void updateUI() {
-        printSummonerToScreen(uSummoner);
-        String welcome_format = getResources().getString(R.string.welcome_back);
-        String welcome_message = String.format(welcome_format, uSummoner.getName());
-        welcome_lbl.setText(welcome_message);
-        getPlayStatus();
-        new ProfileIconTask().execute(uSummoner.getProfileIconId() + "");
-        new GetMatches().execute(uSummoner);
-        refreshAvail = false;
+
+            printSummonerToScreen(uSummoner);
+            String welcome_format = getResources().getString(R.string.welcome_back);
+            String welcome_message = String.format(welcome_format, uSummoner.getName());
+            welcome_lbl.setText(welcome_message);
+            getPlayStatus();
+            new ProfileIconTask().execute(uSummoner.getProfileIconId() + "");
+            new GetMatches().execute(uSummoner);
+
+
+        fetching.setVisibility(View.GONE);
+            matchList.setVisibility(View.VISIBLE);
+            refreshAvail = false;
+    }
+
+    private void forceUpdateUI() {
+        if(refreshAvail) {
+            printSummonerToScreen(uSummoner);
+            String welcome_format = getResources().getString(R.string.welcome_back);
+            String welcome_message = String.format(welcome_format, uSummoner.getName());
+            welcome_lbl.setText(welcome_message);
+            getPlayStatus();
+            new ProfileIconTask().execute(uSummoner.getProfileIconId() + "");
+            new GetMatches().execute(uSummoner);
+        }
     }
 
 
@@ -382,12 +405,20 @@ public class Main extends AppCompatActivity {
     }
 
     public static void setMatchList(List<MatchReference> matches) {
+        if(mAdapter == null) {
+            initAdapter(matches);
+        } else if (refreshAvail){
+            initAdapter(matches);
+        }
+    }
+
+    private static void initAdapter(List<MatchReference> matches) {
         //initalize empty adapter
         mAdapter = new MatchAdapter(mContext, 0, recentMatches);
         Log.d("Main:setMatchList", "got recent matches");
         int count = 0;
         for (MatchReference x : matches) {
-            if (count < 5) {
+            if (count < 1) {
 //                Log.d("Match" + count, x.toString());
                 new MatchInfo().execute(x.getGameId());
                 count++;
@@ -398,24 +429,16 @@ public class Main extends AppCompatActivity {
 
 
     public static void addMatch(Match newMatch){
-//        matchList.invalidate();
         recentMatches.add(newMatch);
-        Log.d("recent matches", recentMatches+"");
-//        mAdapter = new MatchAdapter(mContext, 0, recentMatches);
-//        ((MatchAdapter) matchList.getAdapter()).notifyDataSetChanged();
-//        mAdapter = new MatchAdapter(mContext, 0, recentMatches);
-        Log.d("addMatch:", "data changed");
-//        mAdapter.notifyDataSetChanged();
-
+//        Log.d("recent matches", recentMatches+"");
         matchList.setAdapter(new MatchAdapter(mContext, 0, recentMatches));
-
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == FAILURE) {
             Log.d(TAG, "Error");
-            Toast.makeText(this, R.string.lbl_set_fail, Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, R.string.lbl_set_fail, Toast.LENGTH_SHORT).show();
         } else if (requestCode == REQUEST_PLAYERS && resultCode == SUCCESS) {
             Log.d(TAG, "returned from other players sucessfully");
 

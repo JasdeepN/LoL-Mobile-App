@@ -36,4 +36,5 @@
     <string name="display_champions">Champions</string>
     <string name="txtChampHint">Enter in a champion</string>
     <string name="btnSearch">Search</string>
+    <string name="fetching">getting data...</string>
 </resources>

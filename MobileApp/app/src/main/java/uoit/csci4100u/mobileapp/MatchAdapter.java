@@ -24,10 +24,12 @@ import net.rithms.riot.api.endpoints.static_data.dto.ChampionList;
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import uoit.csci4100u.mobileapp.tasks.ChampionIconTask;
 import uoit.csci4100u.mobileapp.util.NetworkTask;
 
 import static uoit.csci4100u.mobileapp.Main.champions;
@@ -39,10 +41,17 @@ import static uoit.csci4100u.mobileapp.Main.locale;
 
 public class MatchAdapter extends ArrayAdapter<Match> {
     Context context;
+    Map<String, Champion> champList;
+    Map<String, String> champKeys;
+    static List<ImageView> champIcons = new ArrayList<>();
+
+
     public MatchAdapter(@NonNull Context context, int resource, @NonNull ArrayList<Match> objects) {
         super(context, resource, objects);
         this.context = context;
-//        Log.d("champion List", champions.getData()+"");
+        champList = champions.getData();
+//        Log.d("champion List", champList.values()+"");
+
     }
 
     @Override
@@ -61,7 +70,6 @@ public class MatchAdapter extends ArrayAdapter<Match> {
         String map = MapId(map_id);
         List<Participant> match_players = currMatch.getParticipants();
 
-
         // Lookup view for data population
         TextView gameTime = (TextView) convertView.findViewById(R.id.match_time);
         TextView gameMap = (TextView) convertView.findViewById(R.id.match_map);
@@ -75,6 +83,16 @@ public class MatchAdapter extends ArrayAdapter<Match> {
         ImageView champ7 = (ImageView) convertView.findViewById(R.id.icon8);
         ImageView champ8 = (ImageView) convertView.findViewById(R.id.icon9);
         ImageView champ9 = (ImageView) convertView.findViewById(R.id.icon10);
+        champIcons.add(champ0);
+        champIcons.add(champ1);
+        champIcons.add(champ2);
+        champIcons.add(champ3);
+        champIcons.add(champ4);
+        champIcons.add(champ5);
+        champIcons.add(champ6);
+        champIcons.add(champ7);
+        champIcons.add(champ8);
+        champIcons.add(champ9);
 
         // Populate the data into the template view using the data object
         String format = context.getResources().getString(R.string.match_time);
@@ -86,19 +104,47 @@ public class MatchAdapter extends ArrayAdapter<Match> {
         gameMap.setText(map);
 
         //use data dragon to fill these
-        for (Participant x : match_players) {
+
+//        Log.d("champ:list:values", champList.values()+"");
+//        Log.d("champ:list:keys", champList.keySet()+"");
+        Collection<Champion> c = champList.values();
+        for (int i = 0; i < 10; i++) {
+            Participant x = match_players.get(i);
             int champId = x.getChampionId();
+            //set this in case want to get more data from champ later
+            Champion playedChamp;
+            Log.d("champ:ID", champId + "");
+            for (Champion y : c) {
+                if (y.getId() == champId) {
+                    playedChamp = y;
+                    new ChampionIconTask().execute(playedChamp.getName(), i+"");
+                    }
+                }
+            }
+            //do other things with the champ
+
+//            String champName = playedChamp.;
+//            try {
+//                champIcons.get(i).setImageBitmap(new ChampionIconTask().execute(champName).get());
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            } catch (ExecutionException e) {
+//                e.printStackTrace();
+//            }
+//            Log.d("map:", champMap.containsKey(champId)+"");
 //            Log.d("champId =", champId+"");
-
-
-        }
+//        }
 //        champ0.setImageDrawable();
         return convertView;
     }
 
+    public static void setChampIcon(Bitmap bm, int icon_num){
+        champIcons.get(icon_num).setImageBitmap(bm);
+    }
+
     //gets the constants for queue, queueid, and gameQueueConfigId fields
-    private String MapId(int id){
-        switch (id){
+    private String MapId(int id) {
+        switch (id) {
             case 1:
                 return "Summoner's Rift (orignal)";
             case 2:
@@ -128,7 +174,4 @@ public class MatchAdapter extends ArrayAdapter<Match> {
 
         }
     }
-
-
-
 }

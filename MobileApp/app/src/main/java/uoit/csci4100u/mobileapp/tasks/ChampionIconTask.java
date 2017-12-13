@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import uoit.csci4100u.mobileapp.Main;
+import uoit.csci4100u.mobileapp.MatchAdapter;
 import uoit.csci4100u.mobileapp.util.NetworkTask;
 
 import static uoit.csci4100u.mobileapp.Main.current_version;
@@ -18,14 +19,17 @@ import static uoit.csci4100u.mobileapp.Main.current_version;
  * Created by jasdeep on 2017-12-12.
  */
 
-public class ProfileIconTask extends NetworkTask<String, Void, Bitmap> {
-
+public class ChampionIconTask extends NetworkTask<String, Void, Bitmap> {
+// http://ddragon.leagueoflegends.com/cdn/6.24.1/img/champion/Aatrox.png
+    int i;
     @Override
     protected Bitmap doInBackground(String... input) {
         Bitmap bm = null;
+        i = Integer.parseInt(input[1]);
         try {
 
-            String tempUrl = BASE_DRAGON_URL + current_version + "/img/profileicon/" + input[0] + ".png";
+            String tempUrl = BASE_DRAGON_URL + current_version + "/img/champion/" + input[0] + "" +
+                    ".png";
             Log.d("DataDragon:lookup", tempUrl + "");
             URL url = new URL(tempUrl);
 
@@ -46,13 +50,13 @@ public class ProfileIconTask extends NetworkTask<String, Void, Bitmap> {
 
     @Override
     protected void onPostExecute(Bitmap result) {
-        Log.d("ProfildIcon:end", "finished data dragon access");
-        Main.setIcon(result);
+        Log.d("champIcon:end", "finished data dragon access");
+        MatchAdapter.setChampIcon(result, i);
     }
 
     @Override
     protected void onPreExecute() {
-        Log.d("ProfileIcon:start", "starting data dragon access");
+        Log.d("champIcon:start", "starting data dragon access");
     }
 }
 

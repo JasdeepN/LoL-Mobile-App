@@ -27,12 +27,14 @@ import static uoit.csci4100u.mobileapp.Main.locale;
  * Created by jasdeep on 2017-12-12.
  */
 
-public class ChampionTask extends NetworkTask<String, Void, ChampionList> {
-    ChampionList champs;
+public class ChampionListTask extends NetworkTask<String, Void, ChampionList> {
+    private ChampionList champs;
     @Override
     protected ChampionList doInBackground(String... input) {
         try {
             champs = riot_api.getDataChampionList(locale);
+//            champs = riot_api.getChampions(locale);
+//            riot_api.getDataChampionList(locale);
         } catch (RiotApiException e) {
             e.printStackTrace();
         }
@@ -42,7 +44,9 @@ public class ChampionTask extends NetworkTask<String, Void, ChampionList> {
     @Override
     protected void onPostExecute(ChampionList result) {
         Log.d("champ:end", "finished data dragon access");
-        Log.d("champ:end",  result.getData()+"");
+//        Log.d("champ:end",  result.getData()+"");
+        Main.setChampList(result);
+        Log.d("champ:set", "list set in main");
     }
 
     @Override
