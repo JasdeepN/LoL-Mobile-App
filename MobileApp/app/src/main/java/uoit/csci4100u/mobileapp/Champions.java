@@ -1,36 +1,36 @@
-//package uoit.csci4100u.mobileapp;
+package uoit.csci4100u.mobileapp;
 //
-//import android.os.AsyncTask;
-//import android.support.v7.app.AppCompatActivity;
-//import android.os.Bundle;
-//import android.util.Log;
+import android.os.AsyncTask;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
 //
 //
-//import net.rithms.riot.api.RiotApi;
-//import net.rithms.riot.api.endpoints.static_data.dto.ChampionList;
-//import net.rithms.riot.constant.Platform;
-//import net.rithms.riot.api.endpoints.static_data.dto.*;
+import net.rithms.riot.api.RiotApi;
+import net.rithms.riot.api.endpoints.static_data.dto.ChampionList;
+import net.rithms.riot.constant.Platform;
+import net.rithms.riot.api.endpoints.static_data.dto.*;
 //
-//import java.util.HashMap;
-//import java.util.Map;
+import java.util.HashMap;
+import java.util.Map;
 //
-//import uoit.csci4100u.mobileapp.util.NetworkTask;
+import uoit.csci4100u.mobileapp.util.NetworkTask;
 //
 //
 ////TODO: this works but need to change so the api is not being called on each request
-//public class Champions extends AppCompatActivity {
+public class Champions extends AppCompatActivity {
 //    final static String TAG = "champion.java";
 //    static ChampionList champions;
 //    RiotApi riot_api;
 //    getNetChamp netTask;
 //
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.champions);
-//        setup();
+   @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.champions);
+ //      setup();
 //
-//    }
+    }
 //
 //    private void setup(){
 //        try {
@@ -74,4 +74,4 @@
 //            Log.d("downloaded", temp);
 //        }
 //    }
-//}
+}
