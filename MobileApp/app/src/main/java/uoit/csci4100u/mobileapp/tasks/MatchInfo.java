@@ -12,7 +12,6 @@ import net.rithms.riot.api.endpoints.match.dto.MatchReference;
 import java.util.List;
 
 import static uoit.csci4100u.mobileapp.Main.locale;
-import static uoit.csci4100u.mobileapp.Main.recentMatches;
 
 /**
  * Created by jasdeep on 2017-12-09.
@@ -35,7 +34,7 @@ public class MatchInfo extends NetworkTask<Long, Void, Match> {
     protected void onPostExecute(Match result) {
         Log.d("matchInfo:end", "finished getting match info");
         Log.d("Results", result.toString());
-        recentMatches.add(result);
+        Main.addMatch(result);
     }
 
 

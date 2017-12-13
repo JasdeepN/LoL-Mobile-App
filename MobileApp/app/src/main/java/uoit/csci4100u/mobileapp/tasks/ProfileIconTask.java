@@ -3,7 +3,6 @@ package uoit.csci4100u.mobileapp.tasks;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
-import android.widget.ImageView;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -16,12 +15,11 @@ import uoit.csci4100u.mobileapp.util.NetworkTask;
 import static uoit.csci4100u.mobileapp.Main.current_version;
 
 /**
- * Created by jasdeep on 2017-12-09.
+ * Created by jasdeep on 2017-12-12.
  */
 
-public class DataDragonTask extends NetworkTask<String, Integer, Bitmap> {
-
-    static final private String BASE_DRAGON_URL = "http://ddragon.leagueoflegends.com/cdn/";
+public class ProfileIconTask extends NetworkTask<String, Void, Bitmap> {
+    static final String BASE_DRAGON_URL = "http://ddragon.leagueoflegends.com/cdn/";
 
     @Override
     protected Bitmap doInBackground(String... input) {
@@ -49,12 +47,14 @@ public class DataDragonTask extends NetworkTask<String, Integer, Bitmap> {
 
     @Override
     protected void onPostExecute(Bitmap result) {
-        Log.d("DataDragon:end", "finished data dragon access");
+        Log.d("ProfildIcon:end", "finished data dragon access");
         Main.setIcon(result);
     }
 
     @Override
     protected void onPreExecute() {
-        Log.d("DataDragon:start", "starting data dragon access");
+        Log.d("ProfileIcon:start", "starting data dragon access");
     }
 }
+
+

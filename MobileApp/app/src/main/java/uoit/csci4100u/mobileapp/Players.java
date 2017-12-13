@@ -1,7 +1,6 @@
 package uoit.csci4100u.mobileapp;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,9 +9,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.google.firebase.database.DataSnapshot;
 
@@ -29,31 +30,69 @@ public class Players extends AppCompatActivity {
 
     List<Summoner> players;
     List<Boolean> statusi;
+    ToggleButton onlineOnly;
     ListView lv;
-    int playerCount = 0;
+    MyAdapter adapter;
+    //show online players only toggle boolean
+    boolean on;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.players);
+        setResult(Main.SUCCESS);
         lv = (ListView) findViewById(R.id.players_list);
+
+
+        onlineOnly = (ToggleButton) findViewById(R.id.online_only);
+
+        onlineOnly.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    // The toggle is enabled
+                    Log.d("Toggle", "ON");
+                    on = true;
+
+                } else {
+                    // The toggle is disabled
+                    Log.d("Toggle", "OFF");
+                    on = false;
+                }
+            }
+        });
+        onlineOnly.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                adapter.clear();
+                load();
+            }
+        });
         players = new ArrayList<>();
         statusi = new ArrayList<>();
-        test();
+        load();
     }
 
-    private void test() {
+    private void load() {
+        players.clear();
+        statusi.clear();
+
         dbHelper.getAllUsers(new OnGetDataListener() {
             @Override
             public void onSuccess(DataSnapshot dataSnapshot) {
                 for (DataSnapshot x : dataSnapshot.getChildren()) {
-                    players.add((x.child("summoner")).getValue(Summoner.class));
-                    statusi.add(x.child("can_play").getValue(Boolean.class));
-                    Log.d("players:result:can_play", statusi.get(playerCount).toString());
-                    Log.d("players:result:summoner", players.get(playerCount).getName());
-                    playerCount++;
+                    //add only online users
+                    if (on) {
+                        boolean test = x.child("can_play").getValue(Boolean.class);
+                        if(test) {
+                            players.add((x.child("summoner")).getValue(Summoner.class));
+                            statusi.add(test);
+                        }
+                    } else {
+                        players.add((x.child("summoner")).getValue(Summoner.class));
+                        statusi.add(x.child("can_play").getValue(Boolean.class));
+                    }
                 }
-                MyAdapter adapter = new MyAdapter(getApplicationContext(), players);
+                adapter = new MyAdapter(getApplicationContext(), players);
                 // Attach the adapter to a ListView
                 lv.setAdapter(adapter);
             }
@@ -83,7 +122,7 @@ public class Players extends AppCompatActivity {
             Boolean status = statusi.get(position);
             // Check if an existing view is being reused, otherwise inflate the view
             if (convertView == null) {
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.mylist, parent, false);
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.player_list_item, parent, false);
             }
             // Lookup view for data population
             TextView sumName = (TextView) convertView.findViewById(R.id.sum_name);
@@ -93,7 +132,10 @@ public class Players extends AppCompatActivity {
             // Populate the data into the template view using the data object
 
             sumName.setText(user.getName());
-            sumLevel.setText(String.valueOf(user.getSummonerLevel()));
+
+            String format = getResources().getString(R.string.level_lbl);
+            String level = String.format(format, String.valueOf(user.getSummonerLevel()));
+            sumLevel.setText(level);
 
             if(status){
                 icon.setImageDrawable(getDrawable(R.drawable.ic_check_black_24dp));

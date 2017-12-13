@@ -1,5 +1,6 @@
 package uoit.csci4100u.mobileapp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.CountDownTimer;
@@ -11,8 +12,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CompoundButton;
-import android.widget.ExpandableListView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -21,19 +22,25 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DataSnapshot;
 
+import net.rithms.riot.api.RiotApiException;
 import net.rithms.riot.api.endpoints.match.dto.Match;
 import net.rithms.riot.api.endpoints.match.dto.MatchReference;
+import net.rithms.riot.api.endpoints.static_data.dto.Champion;
+import net.rithms.riot.api.endpoints.static_data.dto.ChampionList;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 import net.rithms.riot.constant.Platform;
 
+import java.nio.charset.spi.CharsetProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import uoit.csci4100u.mobileapp.tasks.DataDragonTask;
+import uoit.csci4100u.mobileapp.tasks.ChampionTask;
 import uoit.csci4100u.mobileapp.tasks.GetMatches;
 import uoit.csci4100u.mobileapp.tasks.MatchInfo;
+import uoit.csci4100u.mobileapp.tasks.ProfileIconTask;
 import uoit.csci4100u.mobileapp.util.DatabaseHelperUtil;
 import uoit.csci4100u.mobileapp.util.LocationUtil;
 import uoit.csci4100u.mobileapp.util.NetworkTask;
@@ -60,10 +67,13 @@ public class Main extends AppCompatActivity {
     static final int FAILURE = 0;
     static final int CANCEL = -1;
     static final int REQUEST_PLAYERS = 2;
-    public static List<Match> recentMatches;
+    static ChampionList champions;
+    static ArrayList<Match> recentMatches;
     public static boolean play_staus;
+    public static String reigon;
     //current game version
     public static String current_version;
+    static Context mContext;
     Bundle extras;
     TextView summoner_info;
     TextView welcome_lbl;
@@ -82,6 +92,8 @@ public class Main extends AppCompatActivity {
     private GoogleApiClient locApi;
 
     private static Menu menu;
+    static MatchAdapter mAdapter;
+    static ListView matchList;
 
     private static boolean refreshAvail = true;
 
@@ -89,6 +101,7 @@ public class Main extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        mContext = getApplicationContext();
         locUtil = new LocationUtil(this);
         setupLocAPI();
         setUpLayouts();
@@ -97,17 +110,25 @@ public class Main extends AppCompatActivity {
     @Override
     protected void onStart() {
         recentMatches = new ArrayList<Match>();
+        recentMatches.clear();
+
         extras = getIntent().getExtras();
         mUUID = extras.getString("UUID");
-        String temp = extras.getString("locale");
-        Log.d("temp", temp + "");
-        locale = NetworkTask.checkPlatform(temp);
+        reigon = extras.getString("locale");
+        Log.d("temp", reigon + "");
+        locale = NetworkTask.checkPlatform(reigon);
         current_version = extras.getString("version");
         Log.d("version received", current_version + "");
         locApi.connect();
         locUtil.setLocAPI(locApi);
-
         updateUI();
+        try {
+            champions = new ChampionTask().execute(reigon).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
         super.onStart();
     }
 
@@ -162,6 +183,9 @@ public class Main extends AppCompatActivity {
         welcome_lbl = (TextView) findViewById(R.id.welcome_lbl);
         avail_button = (ToggleButton) findViewById(R.id.avail_button);
         icon = (ImageView) findViewById(R.id.imageView);
+        matchList = (ListView) findViewById(R.id.matches);
+        matchList.setAdapter(mAdapter);
+
 
         avail_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -173,7 +197,6 @@ public class Main extends AppCompatActivity {
                     // The toggle is disabled
                     Log.d("Toggle", "OFF");
                 }
-//                play_staus = toggleStatus(play_staus);
             }
         });
         avail_button.setOnClickListener(new View.OnClickListener() {
@@ -183,6 +206,9 @@ public class Main extends AppCompatActivity {
             }
         });
     }
+
+
+
 
     /**
      * Method that prints summoner info to device screen
@@ -345,7 +371,7 @@ public class Main extends AppCompatActivity {
         String welcome_message = String.format(welcome_format, uSummoner.getName());
         welcome_lbl.setText(welcome_message);
         getPlayStatus();
-        new DataDragonTask().execute(uSummoner.getProfileIconId() + "");
+        new ProfileIconTask().execute(uSummoner.getProfileIconId() + "");
         new GetMatches().execute(uSummoner);
         refreshAvail = false;
     }
@@ -356,16 +382,33 @@ public class Main extends AppCompatActivity {
     }
 
     public static void setMatchList(List<MatchReference> matches) {
+        //initalize empty adapter
+        mAdapter = new MatchAdapter(mContext, 0, recentMatches);
         Log.d("Main:setMatchList", "got recent matches");
         int count = 0;
         for (MatchReference x : matches) {
             if (count < 5) {
-                Log.d("Match" + count, x.toString());
+//                Log.d("Match" + count, x.toString());
                 new MatchInfo().execute(x.getGameId());
                 count++;
             }
-
         }
+    }
+
+
+
+    public static void addMatch(Match newMatch){
+//        matchList.invalidate();
+        recentMatches.add(newMatch);
+        Log.d("recent matches", recentMatches+"");
+//        mAdapter = new MatchAdapter(mContext, 0, recentMatches);
+//        ((MatchAdapter) matchList.getAdapter()).notifyDataSetChanged();
+//        mAdapter = new MatchAdapter(mContext, 0, recentMatches);
+        Log.d("addMatch:", "data changed");
+//        mAdapter.notifyDataSetChanged();
+
+        matchList.setAdapter(new MatchAdapter(mContext, 0, recentMatches));
+
     }
 
     @Override

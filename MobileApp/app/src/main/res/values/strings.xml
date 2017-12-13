@@ -27,4 +27,11 @@
     <string name="logout">Logout</string>
     <string name="ui_refresh">updated info</string>
     <string name="other_players">Other Players</string>
+    <string name="level_lbl">Level %1$s</string>
+    <string name="all">All</string>
+    <string name="online">Online Only</string>
+    <string name="match_map">Map: %1$s</string>
+    <string name="match_time">Game Time: %1$s</string>
+    <string name="summoner_icon">summoner icon</string>
+
 </resources>
