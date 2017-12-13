@@ -28,4 +28,6 @@
     <string name="ui_refresh">updated info</string>
     <string name="other_players">Other Players</string>
     <string name="display_champions">Champions</string>
+    <string name="txtChampHint">Enter in a champion</string>
+    <string name="btnSearch">Search</string>
 </resources>

@@ -4,6 +4,8 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 //
 //
 import net.rithms.riot.api.RiotApi;
@@ -19,10 +21,12 @@ import uoit.csci4100u.mobileapp.util.NetworkTask;
 //
 ////TODO: this works but need to change so the api is not being called on each request
 public class Champions extends AppCompatActivity {
-//    final static String TAG = "champion.java";
+   final static String TAG = "champion.java";
 //    static ChampionList champions;
 //    RiotApi riot_api;
 //    getNetChamp netTask;
+    String champName;
+    TextView champText;
 //
    @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,15 @@ public class Champions extends AppCompatActivity {
 //
     }
 //
+
+    public void getChampion(View source)
+    {
+        champText = (TextView) findViewById(R.id.txtChampName);
+        champName = champText.getText().toString();
+        Log.d("TAG", champName);
+
+
+    }
 //    private void setup(){
 //        try {
 //            netTask = new getNetChamp();

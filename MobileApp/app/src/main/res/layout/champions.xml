@@ -7,4 +7,35 @@
     android:layout_height="match_parent"
     tools:context="uoit.csci4100u.mobileapp.Champions">
 
+    <EditText
+        android:id="@+id/txtChampName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="@string/txtChampHint"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="16dp"
+        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="parent"/>
+
+    <ListView
+        android:id="@+id/lvDisplayChamps"
+        android:layout_width="368dp"
+        android:layout_height="433dp"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="70dp"
+        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtChampName"/>
+
+    <Button
+        android:id="@+id/btnSearchChamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btnSearch"
+        android:onClick="getChampion"
+        tools:layout_editor_absoluteX="259dp"
+        tools:layout_editor_absoluteY="0dp"
+        app:layout_constraintLeft_toRightOf="@id/txtChampName"
+        app:layout_constraintTop_toBottomOf="parent"/>
 </android.support.constraint.ConstraintLayout>
