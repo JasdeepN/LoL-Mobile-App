@@ -19,7 +19,8 @@ import java.util.concurrent.Callable;
 public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void, Integer,
         result> {
 
-    static final private String API_KEY = "RGAPI-4d53deae-b96e-486f-922a-ab40334fa747";
+    //Old key: RGAPI-4573816c-0ca3-42b3-a3be-e7e0902e1a07
+    static final private String API_KEY = "RGAPI-d70a3158-d864-41d8-9812-717879befda8";
     static protected final String BASE_DRAGON_URL = "http://ddragon.leagueoflegends.com/cdn/";
 
     static private ApiConfig config;

@@ -29,8 +29,9 @@ public class ChampionIconTask extends AsyncTask<String, Void, Bitmap> {
     protected Bitmap doInBackground(String... input) {
         Bitmap bm = null;
         i = Integer.parseInt(input[1]);
-        try {
 
+
+        try {
             String tempUrl = BASE_DRAGON_URL + current_version + "/img/champion/" + input[0] + "" +
                     ".png";
             Log.d("DataDragon:lookup", tempUrl + "");
