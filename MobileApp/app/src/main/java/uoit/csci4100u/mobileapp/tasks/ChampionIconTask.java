@@ -30,8 +30,10 @@ public class ChampionIconTask extends AsyncTask<String, Void, Bitmap> {
         Bitmap bm = null;
         i = Integer.parseInt(input[1]);
         try {
-
-            String tempUrl = BASE_DRAGON_URL + current_version + "/img/champion/" + input[0] + "" +
+            String champNameFormated ="";
+            champNameFormated = input[0].replace(" ", "");
+            champNameFormated = champNameFormated.replace("Vel'Koz", "Velkoz");
+            String tempUrl = BASE_DRAGON_URL + current_version + "/img/champion/" + champNameFormated + "" +
                     ".png";
             Log.d("DataDragon:lookup", tempUrl + "");
             URL url = new URL(tempUrl);
