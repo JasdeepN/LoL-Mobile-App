@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import net.rithms.riot.api.RiotApi;
@@ -52,6 +53,7 @@ public class MatchAdapter extends ArrayAdapter<Match> {
 //        Log.d("champion List", champList.values()+"");
 
     }
+
 
 
     @Override
@@ -143,6 +145,7 @@ public class MatchAdapter extends ArrayAdapter<Match> {
 //            Log.d("champId =", champId+"");
 //        }
 //        champ0.setImageDrawable();
+
         return convertView;
     }
 

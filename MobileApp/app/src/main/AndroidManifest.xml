@@ -36,6 +36,9 @@
         </activity>
         <activity android:name=".Champions">
         </activity>
+        <activity android:name=".MatchDetails">
+
+        </activity>
     </application>
 
 </manifest>

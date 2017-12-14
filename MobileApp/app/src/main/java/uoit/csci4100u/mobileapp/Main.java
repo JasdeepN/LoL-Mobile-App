@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -44,6 +45,8 @@ import uoit.csci4100u.mobileapp.util.NetworkTask;
 import uoit.csci4100u.mobileapp.util.OnGetDataListener;
 import uoit.csci4100u.mobileapp.util.PermissionChecker;
 
+import static android.provider.AlarmClock.EXTRA_MESSAGE;
+
 /**
  * Main method for App, handles setting up and receiving Activities/Results
  * <p>
@@ -64,10 +67,12 @@ public class Main extends AppCompatActivity {
     static final int FAILURE = 0;
     static final int CANCEL = -1;
     static final int REQUEST_PLAYERS = 2;
-    static ArrayList<Match> recentMatches;
+
+   protected static ArrayList<Match> recentMatches;
     protected static boolean play_staus;
     protected static ChampionList champions;
     protected static String reigon;
+
     //current game version
     public static String current_version;
     static Context mContext;
@@ -101,6 +106,19 @@ public class Main extends AppCompatActivity {
         locUtil = new LocationUtil(this);
         setupLocAPI();
         setUpLayouts();
+
+        ListView getMatchDetails = (ListView) findViewById(R.id.matches);
+
+        getMatchDetails.setAdapter(mAdapter);
+
+        getMatchDetails.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+           @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+               Intent matchIntent = new Intent(Main.this, MatchDetails.class);
+               startActivity(matchIntent);
+            }
+        });
     }
 
     @Override
@@ -246,7 +264,6 @@ public class Main extends AppCompatActivity {
             String retString = "Name: " + x.getName() + "\nAccount ID: " + x.getAccountId() +
                     "\nID: " + x.getId() + "\nLevel: " + x.getSummonerLevel() + "\nLast Modified:" +
                     x.getRevisionDate();
-
 
             this.summoner_info.setText(retString);
         } catch (NullPointerException e) {
