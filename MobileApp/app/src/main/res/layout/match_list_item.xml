@@ -1,4 +1,4 @@
-<android.support.constraint.ConstraintLayout
+<android.widget.RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -8,6 +8,11 @@
         android:id="@+id/match_map"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
+        android:layout_marginTop="8dp"
+        android:layout_toEndOf="@+id/team_1"
         android:padding="8dp"
         android:textSize="14sp"
         app:layout_constraintLeft_toRightOf="@+id/team_1"
@@ -17,6 +22,12 @@
         android:id="@+id/match_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/match_map"
+        android:layout_marginBottom="2dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
+        android:layout_marginTop="8dp"
+        android:layout_toEndOf="@+id/team_2"
         android:padding="8dp"
         android:textSize="14sp"
         app:layout_constraintLeft_toRightOf="@+id/team_2"
@@ -26,60 +37,40 @@
         android:id="@+id/team_1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:orientation="horizontal"
-        android:padding="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:padding="8dp">
 
         <ImageView
             android:id="@+id/icon1"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            />
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="2dp"/>
 
         <ImageView
             android:id="@+id/icon2"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            />
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="2dp"/>
 
         <ImageView
             android:id="@+id/icon3"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            />
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="2dp"/>
 
         <ImageView
             android:id="@+id/icon4"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            />
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="2dp"/>
 
         <ImageView
             android:id="@+id/icon5"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            />
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="2dp"/>
 
     </LinearLayout>
 
@@ -87,6 +78,8 @@
         android:id="@+id/team_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/team_1"
         android:orientation="horizontal"
         android:padding="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -94,55 +87,34 @@
 
         <ImageView
             android:id="@+id/icon10"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="1"/>
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="2dp"/>
 
         <ImageView
             android:id="@+id/icon8"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="1"/>
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="2dp"/>
 
         <ImageView
             android:id="@+id/icon6"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="1"/>
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="2dp"/>
 
         <ImageView
             android:id="@+id/icon7"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="1"/>
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="2dp"/>
 
         <ImageView
             android:id="@+id/icon9"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="1"/>
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="2dp"/>
     </LinearLayout>
 
-</android.support.constraint.ConstraintLayout>
-
+</android.widget.RelativeLayout>
 

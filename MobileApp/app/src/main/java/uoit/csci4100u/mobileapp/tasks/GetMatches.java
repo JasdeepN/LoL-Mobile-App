@@ -14,6 +14,7 @@ import uoit.csci4100u.mobileapp.util.NetworkTask;
 
 import static uoit.csci4100u.mobileapp.Main.locale;
 
+
 /**
  * Created by jasdeep on 2017-12-09.
  */

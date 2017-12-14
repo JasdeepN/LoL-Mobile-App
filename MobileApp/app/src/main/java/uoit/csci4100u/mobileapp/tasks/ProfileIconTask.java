@@ -2,6 +2,7 @@ package uoit.csci4100u.mobileapp.tasks;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -18,7 +19,8 @@ import static uoit.csci4100u.mobileapp.Main.current_version;
  * Created by jasdeep on 2017-12-12.
  */
 
-public class ProfileIconTask extends NetworkTask<String, Void, Bitmap> {
+public class ProfileIconTask extends AsyncTask<String, Void, Bitmap> {
+    static protected final String BASE_DRAGON_URL = "http://ddragon.leagueoflegends.com/cdn/";
 
     @Override
     protected Bitmap doInBackground(String... input) {

@@ -47,15 +47,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
+        android:layout_below="@+id/summoner_info"
         android:text="@string/availability"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
-
-    <TextView
-        android:id="@+id/fetch_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/btnChampions"
-        android:text="@string/fetching"/>
 
     <ListView
         android:id="@+id/matches"

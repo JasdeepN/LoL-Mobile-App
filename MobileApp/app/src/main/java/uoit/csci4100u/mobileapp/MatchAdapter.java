@@ -43,19 +43,20 @@ public class MatchAdapter extends ArrayAdapter<Match> {
     Context context;
     Map<String, Champion> champList;
     Map<String, String> champKeys;
-    static List<ImageView> champIcons = new ArrayList<>();
 
 
-    public MatchAdapter(@NonNull Context context, int resource, @NonNull ArrayList<Match> objects) {
-        super(context, resource, objects);
+    public MatchAdapter(@NonNull Context context, @NonNull ArrayList<Match> objects) {
+        super(context, 0, objects);
         this.context = context;
         champList = champions.getData();
 //        Log.d("champion List", champList.values()+"");
 
     }
 
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        List<ImageView> champIcons = new ArrayList<>();
 
         // Get the data item for this position
         Match currMatch = getItem(position);
@@ -117,11 +118,18 @@ public class MatchAdapter extends ArrayAdapter<Match> {
             for (Champion y : c) {
                 if (y.getId() == champId) {
                     playedChamp = y;
-                    new ChampionIconTask().execute(playedChamp.getName(), i+"");
+                    try {
+                        champIcons.get(i).setImageBitmap(new ChampionIconTask().execute(playedChamp
+                                .getName(), i + "").get());
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
                     }
                 }
             }
-            //do other things with the champ
+        }
+        //do other things with the champ
 
 //            String champName = playedChamp.;
 //            try {
@@ -138,9 +146,10 @@ public class MatchAdapter extends ArrayAdapter<Match> {
         return convertView;
     }
 
-    public static void setChampIcon(Bitmap bm, int icon_num){
-        champIcons.get(icon_num).setImageBitmap(bm);
-    }
+//    public static void setChampIcon(Bitmap bm, int icon_num) {
+//        Log.d("champ:set icon", "set");
+//        champIcons.get(icon_num).setImageBitmap(bm);
+//    }
 
     //gets the constants for queue, queueid, and gameQueueConfigId fields
     private String MapId(int id) {

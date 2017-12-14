@@ -23,7 +23,6 @@ import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DataSnapshot;
 
 import net.rithms.riot.api.endpoints.match.dto.Match;
-import net.rithms.riot.api.endpoints.match.dto.MatchList;
 import net.rithms.riot.api.endpoints.match.dto.MatchReference;
 import net.rithms.riot.api.endpoints.static_data.dto.ChampionList;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
@@ -66,16 +65,15 @@ public class Main extends AppCompatActivity {
     static final int CANCEL = -1;
     static final int REQUEST_PLAYERS = 2;
     static ArrayList<Match> recentMatches;
-    public static boolean play_staus;
-    public static ChampionList champions;
-    public static String reigon;
+    protected static boolean play_staus;
+    protected static ChampionList champions;
+    protected static String reigon;
     //current game version
     public static String current_version;
     static Context mContext;
     Bundle extras;
     TextView summoner_info;
     TextView welcome_lbl;
-    TextView fetching;
     ToggleButton avail_button;
     static ImageView icon;
 
@@ -84,11 +82,10 @@ public class Main extends AppCompatActivity {
     public static Platform locale;
 
     //New Location util
-    private LocationUtil locUtil;
+    protected LocationUtil locUtil;
 
-    //database helper
-    public static DatabaseHelperUtil dbHelper;
-    private GoogleApiClient locApi;
+    protected static DatabaseHelperUtil dbHelper;
+    protected GoogleApiClient locApi;
 
     private static Menu menu;
     static MatchAdapter mAdapter;
@@ -113,7 +110,7 @@ public class Main extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-        recentMatches = new ArrayList<Match>();
+        recentMatches = new ArrayList<>();
         recentMatches.clear();
 
         extras = getIntent().getExtras();
@@ -151,10 +148,28 @@ public class Main extends AppCompatActivity {
         super.onStop();
     }
 
-    public static void setChampList(ChampionList result){
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        this.menu = menu;
+//        this.refreshItem = menu.getItem(0);
+        startTimer(R.id.refresh_ui);
+//        refreshItem.setEnabled(false);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    /**
+     * Callback method for ChampionListTask that downloads a ChampionList from Riot API
+     *
+     * @param result
+     * @see ChampionListTask
+     */
+    public static void setChampList(ChampionList result) {
         champions = result;
     }
 
+    /**
+     * sets up Google location API
+     */
     private void setupLocAPI() {
         locApi = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -163,15 +178,12 @@ public class Main extends AppCompatActivity {
                 .build();
     }
 
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        this.menu = menu;
-//        this.refreshItem = menu.getItem(0);
-//        startTimer(R.id.refresh_ui);
-//        refreshItem.setEnabled(false);
-        return super.onPrepareOptionsMenu(menu);
-    }
-
+    /**
+     * method to set database helper in Main method
+     *
+     * @param helper
+     * @see DatabaseHelperUtil
+     */
     public static void setDBHelper(DatabaseHelperUtil helper) {
         dbHelper = helper;
     }
@@ -179,19 +191,29 @@ public class Main extends AppCompatActivity {
 
     /**
      * Instantiates and assigns global variables related to the layout
-     * <p>
-     * TODO: make this set a Boolean on Firebase where true is looking for games and false is not
+     *
+     *
      */
     public void setUpLayouts() {
         summoner_info = (TextView) findViewById(R.id.summoner_info);
         welcome_lbl = (TextView) findViewById(R.id.welcome_lbl);
-        fetching = (TextView) findViewById(R.id.fetch_text);
         avail_button = (ToggleButton) findViewById(R.id.avail_button);
         icon = (ImageView) findViewById(R.id.summoner_icon);
         matchList = (ListView) findViewById(R.id.matches);
-        matchList.setAdapter(mAdapter);
-        matchList.setVisibility(View.GONE);
+//        matchList.setAdapter(mAdapter);
 
+//        matchList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                Match item = (Match) adapterView.getItemAtPosition(i);
+////
+//                Intent intent = new Intent(Main.this, MatchDetailView.class);
+//                intent.putExtra("matchID", item.getGameId());
+////                //based on item add info to intent
+//                startActivity(intent);
+////                Log.d("clicked", item+"");
+//            }
+//        });
 
         avail_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -214,8 +236,6 @@ public class Main extends AppCompatActivity {
     }
 
 
-
-
     /**
      * Method that prints summoner info to device screen
      *
@@ -235,6 +255,12 @@ public class Main extends AppCompatActivity {
     }
 
 
+    /**
+     * Converts time in millis to minutes:seconds
+     *
+     * @param millis
+     * @return String in format Minutes:Seconds
+     */
     private static String timeConversion(long millis) {
 
         String hms = String.format(Locale.getDefault(), "%02d:%02d",
@@ -273,6 +299,12 @@ public class Main extends AppCompatActivity {
 
     }
 
+    /**
+     * Toggles play status status on firebase
+     *
+     * @param status
+     * @return !status
+     */
     private Boolean toggleStatus(Boolean status) {
         return dbHelper.togglePlay(status);
     }
@@ -296,7 +328,9 @@ public class Main extends AppCompatActivity {
         uSummoner = you;
     }
 
-    //TODO: update this so it makes sense
+    /**
+     * Logout method
+     */
     public void logout() {
         setResult(Login.RESULT_LOGOUT);
         finish();
@@ -313,9 +347,12 @@ public class Main extends AppCompatActivity {
         }
     }
 
+    /**
+     * forces the UI to update
+     */
     public void onRefreshClick() {
         if (refreshAvail) {
-            forceUpdateUI();
+        forceUpdateUI();
             Toast.makeText(this, R.string.ui_refresh, Toast.LENGTH_SHORT).show();
             startTimer(R.id.refresh_ui);
         } else {
@@ -324,6 +361,10 @@ public class Main extends AppCompatActivity {
         }
     }
 
+    /**
+     * Starts timer
+     * @param item_id
+     */
     private static void startTimer(final int item_id) {
         Log.d("timer", "start");
         new CountDownTimer(300000, 1000) {
@@ -343,6 +384,11 @@ public class Main extends AppCompatActivity {
         }.start();
     }
 
+    /**
+     * overrides the default onOptionsItemSelected
+     * @param item
+     * @return Boolean success
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
@@ -366,72 +412,97 @@ public class Main extends AppCompatActivity {
         }
     }
 
+    /**
+     * Launches intent for view containing other players
+     */
     private void launchOtherPlayers() {
         Intent intent = new Intent(Main.this, Players.class);
         startActivityForResult(intent, REQUEST_PLAYERS);
     }
 
+    /**
+     * Updates UI
+     */
     private void updateUI() {
+        printSummonerToScreen(uSummoner);
+        String welcome_format = getResources().getString(R.string.welcome_back);
+        String welcome_message = String.format(welcome_format, uSummoner.getName());
+        welcome_lbl.setText(welcome_message);
+        getPlayStatus();
+        new ProfileIconTask().execute(uSummoner.getProfileIconId() + "");
+        new GetMatches().execute(uSummoner);
 
-            printSummonerToScreen(uSummoner);
-            String welcome_format = getResources().getString(R.string.welcome_back);
-            String welcome_message = String.format(welcome_format, uSummoner.getName());
-            welcome_lbl.setText(welcome_message);
-            getPlayStatus();
-            new ProfileIconTask().execute(uSummoner.getProfileIconId() + "");
-            new GetMatches().execute(uSummoner);
-
-
-        fetching.setVisibility(View.GONE);
-            matchList.setVisibility(View.VISIBLE);
-            refreshAvail = false;
+        refreshAvail = false;
     }
 
+    /**
+     * Forces update to UI
+     */
     private void forceUpdateUI() {
-        if(refreshAvail) {
-            printSummonerToScreen(uSummoner);
-            String welcome_format = getResources().getString(R.string.welcome_back);
-            String welcome_message = String.format(welcome_format, uSummoner.getName());
-            welcome_lbl.setText(welcome_message);
-            getPlayStatus();
-            new ProfileIconTask().execute(uSummoner.getProfileIconId() + "");
-            new GetMatches().execute(uSummoner);
-        }
+//            printSummonerToScreen(uSummoner);
+//            String welcome_format = getResources().getString(R.string.welcome_back);
+//            String welcome_message = String.format(welcome_format, uSummoner.getName());
+//            welcome_lbl.setText(welcome_message);
+//            getPlayStatus();
+        new ProfileIconTask().execute(uSummoner.getProfileIconId() + "");
+        new GetMatches().execute(uSummoner);
     }
 
 
+    /**
+     * Callback method for setting icons
+     * @param result Bitmap downloaded from DataDragon
+     * @see uoit.csci4100u.mobileapp.tasks.ChampionIconTask
+     */
     public static void setIcon(Bitmap result) {
         icon.setImageBitmap(result);
     }
 
+    /**
+     * Callback method for get match list method
+     * @param matches list of recent Matches from Riot API
+     * @see GetMatches
+     */
     public static void setMatchList(List<MatchReference> matches) {
-        if(mAdapter == null) {
-            initAdapter(matches);
-        } else if (refreshAvail){
-            initAdapter(matches);
-        }
+        initAdapter(matches);
     }
 
+    /**
+     * Sets up custom adapter for match ListView
+     * @param matches List of recent Matches
+     */
     private static void initAdapter(List<MatchReference> matches) {
         //initalize empty adapter
-        mAdapter = new MatchAdapter(mContext, 0, recentMatches);
         Log.d("Main:setMatchList", "got recent matches");
         int count = 0;
+        int MATCH_COUNT = 3;
         for (MatchReference x : matches) {
-            if (count < 1) {
-//                Log.d("Match" + count, x.toString());
-                new MatchInfo().execute(x.getGameId());
+            if (count < MATCH_COUNT) {
+                Log.d("Match" + count, x.toString());
+                try {
+                    recentMatches.add(new MatchInfo().execute(x.getGameId()).get());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
                 count++;
+            } else if(count >= MATCH_COUNT){
+                mAdapter = new MatchAdapter(mContext, recentMatches);
+                matchList.setAdapter(mAdapter);
+                return;
             }
         }
+
     }
 
-
-
-    public static void addMatch(Match newMatch){
-        recentMatches.add(newMatch);
-//        Log.d("recent matches", recentMatches+"");
-        matchList.setAdapter(new MatchAdapter(mContext, 0, recentMatches));
+    /**
+     * Adds match to adapter and notifies
+     * @param newMatch New match to be added to adapter
+     * @see MatchInfo
+     */
+    public static void addMatch(Match newMatch) {
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -447,8 +518,7 @@ public class Main extends AppCompatActivity {
     }
 
     //class made to go to layout to display the list of champions
-    public void gotoChampions(View source)
-    {
+    public void gotoChampions(View source) {
         Intent displayChamps = new Intent(Main.this, Champions.class);
         startActivityForResult(displayChamps, 101);
     }

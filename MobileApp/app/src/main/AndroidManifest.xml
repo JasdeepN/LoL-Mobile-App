@@ -34,9 +34,7 @@
         </activity>
         <activity android:name=".Players">
         </activity>
-
         <activity android:name=".Champions">
-
         </activity>
     </application>
 

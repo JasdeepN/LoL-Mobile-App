@@ -2,6 +2,7 @@ package uoit.csci4100u.mobileapp.tasks;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -19,8 +20,10 @@ import static uoit.csci4100u.mobileapp.Main.current_version;
  * Created by jasdeep on 2017-12-12.
  */
 
-public class ChampionIconTask extends NetworkTask<String, Void, Bitmap> {
+public class ChampionIconTask extends AsyncTask<String, Void, Bitmap> {
 // http://ddragon.leagueoflegends.com/cdn/6.24.1/img/champion/Aatrox.png
+    static protected final String BASE_DRAGON_URL = "http://ddragon.leagueoflegends.com/cdn/";
+
     int i;
     @Override
     protected Bitmap doInBackground(String... input) {
@@ -51,7 +54,7 @@ public class ChampionIconTask extends NetworkTask<String, Void, Bitmap> {
     @Override
     protected void onPostExecute(Bitmap result) {
         Log.d("champIcon:end", "finished data dragon access");
-        MatchAdapter.setChampIcon(result, i);
+//        MatchAdapter.setChampIcon(result, i);
     }
 
     @Override
