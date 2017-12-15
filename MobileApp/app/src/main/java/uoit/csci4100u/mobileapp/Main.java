@@ -78,9 +78,9 @@ public class Main extends AppCompatActivity {
     public static String current_version;
     static Context mContext;
     Bundle extras;
-    TextView summoner_info;
-    TextView welcome_lbl;
-    ToggleButton avail_button;
+     static TextView summoner_info;
+    static TextView welcome_lbl;
+    static ToggleButton avail_button;
     static ImageView icon;
 
     protected static MatchList matchRef;
@@ -96,7 +96,7 @@ public class Main extends AppCompatActivity {
     protected GoogleApiClient locApi;
 
     private static Menu menu;
-    static MatchAdapter mAdapter;
+    static protected MatchAdapter mAdapter;
     static ListView matchList;
 
     private static boolean refreshAvail = true;
@@ -107,8 +107,32 @@ public class Main extends AppCompatActivity {
         setContentView(R.layout.main);
         mContext = getApplicationContext();
         locUtil = new LocationUtil(this);
+        recentMatches = new ArrayList<>();
+        extras = getIntent().getExtras();
+        mUUID = extras.getString("UUID");
+        reigon = extras.getString("locale");
+        locale = NetworkTask.checkPlatform(reigon);
+        current_version = extras.getString("version");
+
+
+        Log.d("version received", current_version + "");
+
+        try {
+            champions = new ChampionListTask().execute(reigon).get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
         setupLocAPI();
         setUpLayouts();
+
+
+
+        locApi.connect();
+        locUtil.setLocAPI(locApi);
+
     }
 
     @Override
@@ -118,22 +142,6 @@ public class Main extends AppCompatActivity {
 
     @Override
     protected void onStart() {
-        recentMatches = new ArrayList<>();
-        recentMatches.clear();
-
-        extras = getIntent().getExtras();
-        mUUID = extras.getString("UUID");
-        reigon = extras.getString("locale");
-        locale = NetworkTask.checkPlatform(reigon);
-        current_version = extras.getString("version");
-        new ChampionListTask().execute(reigon);
-
-        Log.d("version received", current_version + "");
-
-        locApi.connect();
-        locUtil.setLocAPI(locApi);
-        updateUI();
-
         super.onStart();
     }
 
@@ -173,6 +181,7 @@ public class Main extends AppCompatActivity {
      */
     public static void setChampList(ChampionList result) {
         champions = result;
+        updateUI();
     }
 
     /**
@@ -253,13 +262,13 @@ public class Main extends AppCompatActivity {
      *
      * @param x the Summoner object to be printed
      */
-    public void printSummonerToScreen(Summoner x) {
+    public static void printSummonerToScreen(Summoner x) {
         try {
             String retString = "\nAccount ID: " + x.getAccountId() + "\nLevel: " + x.getSummonerLevel();
 
-            this.summoner_info.setText(retString);
+            summoner_info.setText(retString);
         } catch (NullPointerException e) {
-            this.summoner_info.setText(R.string.cant_find_name);
+            summoner_info.setText(R.string.cant_find_name);
         }
     }
 
@@ -285,7 +294,7 @@ public class Main extends AppCompatActivity {
      *
      * @return Boolean True if the user is looking for a game and False if they are not
      */
-    private void getPlayStatus() {
+    private static void getPlayStatus() {
         dbHelper.getCurrentStatus(new OnGetDataListener() {
 
             @Override
@@ -434,13 +443,13 @@ public class Main extends AppCompatActivity {
     /**
      * Updates UI
      */
-    private void updateUI() {
+    private static void updateUI() {
         printSummonerToScreen(uSummoner);
-        String welcome_format = getResources().getString(R.string.welcome_back);
+        String welcome_format =  mContext.getResources().getString(R.string.welcome_back);
         String welcome_message = String.format(welcome_format, uSummoner.getName());
         welcome_lbl.setText(welcome_message);
         getPlayStatus();
-
+        mAdapter = new MatchAdapter(mContext, recentMatches);
         new ProfileIconTask().execute(uSummoner.getProfileIconId() + "");
         new GetMatches().execute(uSummoner);
 
@@ -476,7 +485,7 @@ public class Main extends AppCompatActivity {
         //initalize empty adapter
         Log.d("Main:setMatchList", "got recent matches");
         int count = 0;
-        int MATCH_COUNT = 2;
+        int MATCH_COUNT = 5;
         for (MatchReference x : matches) {
             if (count < MATCH_COUNT) {
                 Log.d("Match" + count, x.toString());
@@ -484,7 +493,7 @@ public class Main extends AppCompatActivity {
                 count++;
             }
         }
-        mAdapter = new MatchAdapter(mContext, recentMatches);
+
         matchList.setAdapter(mAdapter);
 
     }
