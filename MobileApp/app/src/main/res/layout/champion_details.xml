@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.widget.RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="uoit.csci4100u.mobileapp.ChampionDetails">
+
+    <ImageView
+        android:id="@+id/champicon"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_margin="4dp"/>
+
+    <TextView
+        android:id="@+id/champ_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:layout_toRightOf="@+id/champicon"
+        android:text="champname"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
+
+    <TextView
+        android:id="@+id/blurb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/champ_name"
+        android:layout_margin="4dp"
+        android:layout_toRightOf="@+id/champicon"
+        android:text="champinfo"/>
+
+    <ImageView
+        android:id="@+id/splash"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/champicon"
+        android:layout_margin="4dp"/>
+
+</android.widget.RelativeLayout>

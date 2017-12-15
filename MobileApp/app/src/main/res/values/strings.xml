@@ -40,4 +40,7 @@
     <string name="lblMatchDetailsTitle">Details</string>
     <string name="txtRedTeam">Red Team</string>
     <string name="txtBlueTeam">Blue Team</string>
+    <string name="lore_lbl">Lore</string>
+    <string name="tips_for">Tips for Playing %1$s</string>
+    <string name="tips_against">Tips for Playing Against %1$s</string>
 </resources>

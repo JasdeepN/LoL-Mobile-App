@@ -20,6 +20,8 @@ import android.widget.ToggleButton;
 
 import com.google.firebase.database.DataSnapshot;
 
+import net.rithms.riot.api.RiotApiException;
+import net.rithms.riot.api.endpoints.static_data.dto.Champion;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 import java.io.BufferedInputStream;
@@ -31,10 +33,12 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import uoit.csci4100u.mobileapp.tasks.ProfileIconTask;
+import uoit.csci4100u.mobileapp.util.NetworkTask;
 import uoit.csci4100u.mobileapp.util.OnGetDataListener;
 
 import static uoit.csci4100u.mobileapp.Main.current_version;
 import static uoit.csci4100u.mobileapp.Main.dbHelper;
+import static uoit.csci4100u.mobileapp.Main.locale;
 
 public class Players extends AppCompatActivity {
 
@@ -214,7 +218,5 @@ public class Players extends AppCompatActivity {
             Log.d("ProfileIcon:start", "starting data dragon access");
         }
     }
-
-
 
 }

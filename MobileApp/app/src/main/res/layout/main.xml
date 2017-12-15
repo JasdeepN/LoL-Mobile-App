@@ -8,6 +8,15 @@
     android:padding="8dp"
     tools:context="uoit.csci4100u.mobileapp.Main">
 
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/avail_label"
+        android:layout_toEndOf="@+id/summoner_info"
+        android:onClick="temp"
+        android:text="Button"/>
+
     <ImageView
         android:id="@+id/summoner_icon"
         android:layout_width="100dp"
@@ -61,6 +70,10 @@
         android:scrollbars="vertical"
         android:scrollingCache="true"
         android:smoothScrollbar="true"
-        android:tooltipText="Fetching"/>
+        android:tooltipText="Fetching"
+        android:cacheColorHint="#00000000"
+        android:scrollbarFadeDuration="0"
+        android:divider="@android:color/white"
+        android:dividerHeight="2px"/>
 
 </android.widget.RelativeLayout>

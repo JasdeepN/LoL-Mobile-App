@@ -1,7 +1,12 @@
 package uoit.csci4100u.mobileapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -24,6 +29,10 @@ import net.rithms.riot.api.endpoints.static_data.dto.ChampionList;
 
 import org.w3c.dom.Text;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -34,6 +43,7 @@ import uoit.csci4100u.mobileapp.tasks.ChampionIconTask;
 import uoit.csci4100u.mobileapp.util.NetworkTask;
 
 import static uoit.csci4100u.mobileapp.Main.champions;
+import static uoit.csci4100u.mobileapp.Main.current_version;
 import static uoit.csci4100u.mobileapp.Main.locale;
 
 /**
@@ -43,18 +53,12 @@ import static uoit.csci4100u.mobileapp.Main.locale;
 public class MatchAdapter extends ArrayAdapter<Match> {
     Context context;
     Map<String, Champion> champList;
-    Map<String, String> champKeys;
-
 
     public MatchAdapter(@NonNull Context context, @NonNull ArrayList<Match> objects) {
         super(context, 0, objects);
         this.context = context;
         champList = champions.getData();
-//        Log.d("champion List", champList.values()+"");
-
     }
-
-
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -96,7 +100,6 @@ public class MatchAdapter extends ArrayAdapter<Match> {
         champIcons.add(champ7);
         champIcons.add(champ8);
         champIcons.add(champ9);
-
         // Populate the data into the template view using the data object
         String format = context.getResources().getString(R.string.match_time);
         String timex = DateUtils.formatElapsedTime(duration);
@@ -105,6 +108,7 @@ public class MatchAdapter extends ArrayAdapter<Match> {
 //        Log.d("time", timex);
         gameTime.setText(time);
         gameMap.setText(map);
+
 
         //use data dragon to fill these
 
@@ -184,6 +188,45 @@ public class MatchAdapter extends ArrayAdapter<Match> {
             default:
                 return "unknown map";
 
+        }
+    }
+
+    public class MapBackground extends AsyncTask<Integer, Void, Bitmap> {
+        static protected final String BASE_DRAGON_URL = "http://ddragon.leagueoflegends.com/cdn/";
+        @Override
+        protected Bitmap doInBackground(Integer... input) {
+            Bitmap bm = null;
+            try {
+                //http://ddragon.leagueoflegends.com/cdn/6.8.1/img/map/map11.png
+                String tempUrl = BASE_DRAGON_URL + current_version + "/img/map/map" + input[0] +
+                        "" +
+                        ".png";
+                Log.d("DataDragon:lookup", tempUrl + "");
+                URL url = new URL(tempUrl);
+
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.connect();
+                InputStream is = urlConnection.getInputStream();
+                BufferedInputStream bis = new BufferedInputStream(is);
+                bm = BitmapFactory.decodeStream(bis);
+                bis.close();
+                is.close();
+            } catch (java.net.MalformedURLException me) {
+                Log.d("URL ERROR", me + "");
+            } catch (java.io.IOException ie) {
+                Log.d("IO ERROR", ie + "");
+            }
+            return bm;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            Log.d("map:end", "finished data dragon access");
+        }
+
+        @Override
+        protected void onPreExecute() {
+            Log.d("map:start", "starting data dragon access");
         }
     }
 }
