@@ -393,8 +393,7 @@ public class Login extends AppCompatActivity {
                             Toast.makeText(Login.this, R.string.new_account_failure,
                                     Toast.LENGTH_SHORT).show();
                             //email.setText("");
-                            pass.setText("");
-                            summoner.setText("");
+//                            pass.setText("");
                            summoner_line.setVisibility(View.INVISIBLE);
                            btnLogin.setEnabled(true);
                         } else {
@@ -408,6 +407,8 @@ public class Login extends AppCompatActivity {
                             Log.d(TAG + " version", current_version + "");
 
                             userSummoner = newSummoner;
+                            summoner.getText().clear();
+
 //                            Log.d(TAG + "createAccoun", "error no matching summoner");
                             //... other things
                         }
