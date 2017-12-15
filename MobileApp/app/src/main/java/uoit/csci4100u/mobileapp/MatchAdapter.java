@@ -54,6 +54,7 @@ public class MatchAdapter extends ArrayAdapter<Match> {
     Context context;
     Map<String, Champion> champList;
 
+
     public MatchAdapter(@NonNull Context context, @NonNull ArrayList<Match> objects) {
         super(context, 0, objects);
         this.context = context;
@@ -123,10 +124,7 @@ public class MatchAdapter extends ArrayAdapter<Match> {
         gameTime.setText(time);
         gameMap.setText(map);
         winningTeam.setText(teamThatWon);
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 
         //use data dragon to fill these
 
