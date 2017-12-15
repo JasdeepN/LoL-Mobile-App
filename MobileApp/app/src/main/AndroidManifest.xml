@@ -41,6 +41,8 @@
         </activity>
         <activity android:name=".ChampionDetails">
         </activity>
+
+
     </application>
 
 </manifest>

@@ -43,4 +43,5 @@
     <string name="lore_lbl">Lore</string>
     <string name="tips_for">Tips for Playing %1$s</string>
     <string name="tips_against">Tips for Playing Against %1$s</string>
+    <string name="txtKDA">KDA</string>
 </resources>
