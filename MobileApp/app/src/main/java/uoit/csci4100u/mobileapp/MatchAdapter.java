@@ -54,6 +54,7 @@ public class MatchAdapter extends ArrayAdapter<Match> {
     Context context;
     Map<String, Champion> champList;
 
+
     public MatchAdapter(@NonNull Context context, @NonNull ArrayList<Match> objects) {
         super(context, 0, objects);
         this.context = context;
@@ -80,6 +81,7 @@ public class MatchAdapter extends ArrayAdapter<Match> {
         // Lookup view for data population
         TextView gameTime = (TextView) convertView.findViewById(R.id.match_time);
         TextView gameMap = (TextView) convertView.findViewById(R.id.match_map);
+        TextView winningTeam = (TextView) convertView.findViewById(R.id.txtWinningTeam);
         ImageView champ0 = (ImageView) convertView.findViewById(R.id.icon1);
         ImageView champ1 = (ImageView) convertView.findViewById(R.id.icon2);
         ImageView champ2 = (ImageView) convertView.findViewById(R.id.icon3);
@@ -104,10 +106,24 @@ public class MatchAdapter extends ArrayAdapter<Match> {
         String format = context.getResources().getString(R.string.match_time);
         String timex = DateUtils.formatElapsedTime(duration);
         String time = String.format(format, timex);
+        String teamThatWon = "";
+        Boolean didBlueWin = currMatch.getParticipants().get(0).getStats().isWin();
+
+        if(didBlueWin)
+        {
+            teamThatWon = "Winner: Blue";
+        }
+
+        else
+        {
+            teamThatWon = "Winner: Red";
+        }
+
 //        Log.d( "duration", time+"");
 //        Log.d("time", timex);
         gameTime.setText(time);
         gameMap.setText(map);
+        winningTeam.setText(teamThatWon);
 
 
         //use data dragon to fill these

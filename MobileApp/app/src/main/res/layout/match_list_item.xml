@@ -12,30 +12,32 @@
         android:id="@+id/match_map"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/match_time"
+        android:layout_marginLeft="4dp"
         android:layout_marginTop="8dp"
-        android:layout_toEndOf="@+id/team_1"
-        android:padding="8dp"
         android:textSize="14sp"
         app:layout_constraintLeft_toRightOf="@+id/team_1"
-        app:layout_constraintTop_toTopOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtWinningTeam"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/match_map"
+        android:layout_margin="4dp"
+        android:layout_toEndOf="@+id/team_1" />
 
     <TextView
         android:id="@+id/match_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/match_map"
-        android:layout_marginBottom="2dp"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp"
-        android:layout_marginTop="8dp"
+        android:layout_below="@+id/team_1"
+        android:layout_margin="4dp"
         android:layout_toEndOf="@+id/team_2"
-        android:padding="8dp"
         android:textSize="14sp"
         app:layout_constraintLeft_toRightOf="@+id/team_2"
-        app:layout_constraintTop_toBottomOf="@+id/match_map"/>
+        app:layout_constraintTop_toBottomOf="@+id/match_map" />
 
     <LinearLayout
         android:id="@+id/team_1"

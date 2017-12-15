@@ -2,435 +2,200 @@
 <android.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
 
     <TextView
         android:id="@+id/lblMatchDetailsTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
         android:text="@string/lblMatchDetailsTitle"
+        android:textSize="26sp"
         tools:layout_editor_absoluteX="342dp" />
 
     <TextView
         android:id="@+id/match_map"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/lblMatchDetailsTitle"
+        android:layout_below="@id/lblMatchDetailsTitle"
+        android:gravity="center"
         android:padding="8dp"
-        android:textSize="14sp"
-        app:layout_constraintLeft_toRightOf="@+id/team_1"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/match_time"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/match_map"
+        android:gravity="center"
         android:padding="8dp"
-        android:textSize="14sp"
-        app:layout_constraintLeft_toRightOf="@+id/team_2"
-        app:layout_constraintTop_toBottomOf="@+id/match_map" />
+        android:text="DELETE"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/match_length"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/winner"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="DELETE"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/winner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/teams_linear"
+        android:gravity="center"
+        android:padding="8dp"
+        android:text="DELETE"
+        android:textSize="14sp" />
 
     <LinearLayout
-        android:id="@+id/team_1"
-        android:layout_width="wrap_content"
+        android:id="@+id/teams_linear"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/txtPlayer5"
-        android:layout_marginTop="44dp"
-        android:padding="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/icon1"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp" />
-
-        <ImageView
-            android:id="@+id/icon2"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp" />
-
-        <ImageView
-            android:id="@+id/icon3"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp" />
-
-        <ImageView
-            android:id="@+id/icon4"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp" />
-
-        <ImageView
-            android:id="@+id/icon5"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/team_2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtPlayer4"
-        android:layout_marginTop="192dp"
+        android:layout_below="@id/match_time"
         android:orientation="horizontal"
-        android:padding="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_alignParentEnd="true"
+                android:cropToPadding="false"
+        android:layout_alignParentStart="true">
 
-        <ImageView
-            android:id="@+id/icon10"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
+        <LinearLayout
+            android:id="@+id/team_1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/icon1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"/>
+
+            <ImageView
+                android:id="@+id/icon2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"/>
+
+            <ImageView
+                android:id="@+id/icon3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"/>
+
+            <ImageView
+                android:id="@+id/icon4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"/>
+
+            <ImageView
+                android:id="@+id/icon5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
+
+        <ListView
+            android:id="@+id/lvBlueTeam"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1" />
 
-        <ImageView
-            android:id="@+id/icon8"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
+        <ListView
+            android:id="@+id/lvRedTeam"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1" />
 
-        <ImageView
-            android:id="@+id/icon6"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="1" />
+        <LinearLayout
+            android:id="@+id/team_2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="8dp">
 
-        <ImageView
-            android:id="@+id/icon7"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="1" />
+            <ImageView
+                android:id="@+id/icon6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1" />
 
-        <ImageView
-            android:id="@+id/icon9"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="0"
-            android:cropToPadding="false" />
+            <ImageView
+                android:id="@+id/icon7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/icon8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/icon9"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/icon10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/txtPlayer1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtBlueTeam"
-        android:text="TextView"
-        app:layout_constraintHorizontal_bias="0.049"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_editor_absoluteY="161dp" />
-
-    <TextView
-        android:id="@+id/txtPlayer2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtPlayer1"
-        android:text="TextView"
-        app:layout_constraintHorizontal_bias="0.049"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_editor_absoluteY="180dp" />
-
-    <TextView
-        android:id="@+id/txtPlayer3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtPlayer2"
-        android:text="TextView"
-        app:layout_constraintHorizontal_bias="0.049"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_editor_absoluteY="202dp" />
-
-    <TextView
-        android:id="@+id/txtPlayer4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtPlayer3"
-        android:text="TextView"
-        app:layout_constraintHorizontal_bias="0.049"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        tools:layout_editor_absoluteY="232dp" />
-
-    <TextView
-        android:id="@+id/txtPlayer5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/txtPlayer4"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.049"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintVertical_bias="0.533" />
-
-    <TextView
-        android:id="@+id/txtPlayer6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtRedTeam"
-        android:layout_marginEnd="28dp"
-        android:layout_toStartOf="@+id/txtPlayer6Stats"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.628"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.299" />
-
-    <TextView
-        android:id="@+id/txtPlayer7"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/txtRedTeam"
-        android:layout_below="@+id/txtPlayer6"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.628"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.349" />
-
-    <TextView
-        android:id="@+id/txtPlayer8"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/txtPlayer9"
-        android:layout_alignStart="@+id/txtPlayer7"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.628"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.402" />
-
-    <TextView
-        android:id="@+id/txtPlayer9"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/txtPlayer4"
-        android:layout_alignBottom="@+id/txtPlayer4"
-        android:layout_alignStart="@+id/txtPlayer8"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.628"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.455" />
-
-    <TextView
-        android:id="@+id/txtPlayer10"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/txtPlayer9"
-        android:layout_below="@+id/txtPlayer9"
-        android:text="TextView"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.628"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.51" />
-
-    <TextView
-        android:id="@+id/txtBlueTeam"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/match_time"
-        android:text="@string/txtBlueTeam"
-        app:layout_constraintLeft_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/txtRedTeam"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/txtBlueTeam"
-        android:layout_alignBottom="@+id/txtBlueTeam"
-        android:layout_alignEnd="@+id/txtPlayer6"
-        android:text="@string/txtRedTeam"
-        app:layout_constraintHorizontal_bias="0.049"
-        app:layout_constraintRight_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/txtKDA"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/match_map"
-        android:layout_marginEnd="62dp"
-        android:layout_toStartOf="@+id/txtRedTeam"
-        android:text="@string/txtKDA" />
-
-    <TextView
-        android:id="@+id/txtPlayer1Stats"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/txtPlayer1"
-        android:layout_alignBottom="@+id/txtPlayer1"
-        android:layout_alignStart="@+id/txtPlayer2Stats"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/txtPlayer2Stats"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/txtPlayer3Stats"
-        android:layout_below="@+id/txtPlayer1Stats"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/txtPlayer3Stats"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/txtPlayer4Stats"
-        android:layout_alignStart="@+id/txtPlayer4Stats"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/txtPlayer4Stats"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/team_2"
-        android:layout_alignStart="@+id/txtKDA"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/txtPlayer5Stats"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/txtPlayer4Stats"
-        android:layout_below="@+id/txtPlayer4Stats"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/txtPlayer6Stats"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/txtPlayer7Stats"
-        android:layout_below="@+id/txtRedTeam"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/txtPlayer7Stats"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/txtPlayer7"
-        android:layout_alignBottom="@+id/txtPlayer7"
-        android:layout_alignStart="@+id/txtPlayer8Stats"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/txtPlayer8Stats"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/txtPlayer9Stats"
-        android:layout_below="@+id/txtPlayer7"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/txtPlayer9Stats"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/txtPlayer10Stats"
-        android:layout_alignStart="@+id/txtPlayer10Stats"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/txtPlayer10Stats"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/team_1"
-        android:layout_below="@+id/txtPlayer9"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/txtDescribeBlueTeam"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtPlayer10"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="17dp"
-        android:text="Blue Team" />
-
-    <TextView
-        android:id="@+id/DescribeRedReam"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/team_1"
-        android:layout_marginTop="24dp"
-        android:layout_toEndOf="@+id/txtPlayer5Stats"
-        android:text="Red Team" />
-
-    <TextView
-        android:id="@+id/txtBlueTeamWin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="19dp"
-        android:layout_toEndOf="@+id/DescribeRedReam"
-        android:text="TextView" />
-
-    <TextView
-        android:id="@+id/txtRedTeamWin"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/DescribeRedReam"
-        android:layout_alignBottom="@+id/DescribeRedReam"
-        android:layout_alignStart="@+id/txtBlueTeamWin"
-        android:text="TextView" />
 
 
 </android.widget.RelativeLayout>
