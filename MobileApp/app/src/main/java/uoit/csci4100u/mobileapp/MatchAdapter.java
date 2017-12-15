@@ -123,10 +123,7 @@ public class MatchAdapter extends ArrayAdapter<Match> {
         gameTime.setText(time);
         gameMap.setText(map);
         winningTeam.setText(teamThatWon);
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 
         //use data dragon to fill these
 
