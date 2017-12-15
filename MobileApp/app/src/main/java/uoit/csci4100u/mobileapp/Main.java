@@ -69,7 +69,7 @@ public class Main extends AppCompatActivity {
     static final int CANCEL = -1;
     static final int REQUEST_PLAYERS = 2;
 
-   protected static ArrayList<Match> recentMatches;
+    protected static ArrayList<Match> recentMatches;
     protected static boolean play_staus;
     protected static ChampionList champions;
     protected static String reigon;
@@ -160,7 +160,7 @@ public class Main extends AppCompatActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         this.menu = menu;
 //        this.refreshItem = menu.getItem(0);
-        startTimer(R.id.refresh_ui);
+//        startTimer(R.id.refresh_ui);
 //        refreshItem.setEnabled(false);
         return super.onPrepareOptionsMenu(menu);
     }
@@ -199,8 +199,6 @@ public class Main extends AppCompatActivity {
 
     /**
      * Instantiates and assigns global variables related to the layout
-     *
-     *
      */
     public void setUpLayouts() {
         summoner_info = (TextView) findViewById(R.id.summoner_info);
@@ -216,15 +214,13 @@ public class Main extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Match item = (Match) adapterView.getItemAtPosition(i);
 //
-                Log.d("clicked", item.getGameId()+"");
+                Log.d("clicked", item.getGameId() + "");
                 Intent intent = new Intent(Main.this, MatchDetails.class);
                 intent.putExtra("matchID", i);
 //                //based on item add info to intent
                 startActivity(intent);
             }
         });
-
-
 
 
         avail_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -247,7 +243,7 @@ public class Main extends AppCompatActivity {
         });
     }
 
-    public static void setMatchRefList(MatchList refList){
+    public static void setMatchRefList(MatchList refList) {
         matchRef = refList;
     }
 
@@ -259,9 +255,7 @@ public class Main extends AppCompatActivity {
      */
     public void printSummonerToScreen(Summoner x) {
         try {
-            String retString = "Name: " + x.getName() + "\nAccount ID: " + x.getAccountId() +
-                    "\nID: " + x.getId() + "\nLevel: " + x.getSummonerLevel() + "\nLast Modified:" +
-                    x.getRevisionDate();
+            String retString = "\nAccount ID: " + x.getAccountId() + "\nLevel: " + x.getSummonerLevel();
 
             this.summoner_info.setText(retString);
         } catch (NullPointerException e) {
@@ -367,7 +361,7 @@ public class Main extends AppCompatActivity {
      */
     public void onRefreshClick() {
         if (refreshAvail) {
-        forceUpdateUI();
+            updateUI();
             Toast.makeText(this, R.string.ui_refresh, Toast.LENGTH_SHORT).show();
             startTimer(R.id.refresh_ui);
         } else {
@@ -378,6 +372,7 @@ public class Main extends AppCompatActivity {
 
     /**
      * Starts timer
+     *
      * @param item_id
      */
     private static void startTimer(final int item_id) {
@@ -401,6 +396,7 @@ public class Main extends AppCompatActivity {
 
     /**
      * overrides the default onOptionsItemSelected
+     *
      * @param item
      * @return Boolean success
      */
@@ -444,6 +440,7 @@ public class Main extends AppCompatActivity {
         String welcome_message = String.format(welcome_format, uSummoner.getName());
         welcome_lbl.setText(welcome_message);
         getPlayStatus();
+
         new ProfileIconTask().execute(uSummoner.getProfileIconId() + "");
         new GetMatches().execute(uSummoner);
 
@@ -451,21 +448,8 @@ public class Main extends AppCompatActivity {
     }
 
     /**
-     * Forces update to UI
-     */
-    private void forceUpdateUI() {
-//            printSummonerToScreen(uSummoner);
-//            String welcome_format = getResources().getString(R.string.welcome_back);
-//            String welcome_message = String.format(welcome_format, uSummoner.getName());
-//            welcome_lbl.setText(welcome_message);
-//            getPlayStatus();
-        new ProfileIconTask().execute(uSummoner.getProfileIconId() + "");
-        new GetMatches().execute(uSummoner);
-    }
-
-
-    /**
      * Callback method for setting icons
+     *
      * @param result Bitmap downloaded from DataDragon
      * @see uoit.csci4100u.mobileapp.tasks.ChampionIconTask
      */
@@ -475,6 +459,7 @@ public class Main extends AppCompatActivity {
 
     /**
      * Callback method for get match list method
+     *
      * @param matches list of recent Matches from Riot API
      * @see GetMatches
      */
@@ -484,6 +469,7 @@ public class Main extends AppCompatActivity {
 
     /**
      * Sets up custom adapter for match ListView
+     *
      * @param matches List of recent Matches
      */
     private static void initAdapter(List<MatchReference> matches) {
@@ -494,29 +480,23 @@ public class Main extends AppCompatActivity {
         for (MatchReference x : matches) {
             if (count < MATCH_COUNT) {
                 Log.d("Match" + count, x.toString());
-                try {
-                    recentMatches.add(new MatchInfo().execute(x.getGameId()).get());
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                }
+                new MatchInfo().execute(x.getGameId());
                 count++;
-            } else if(count >= MATCH_COUNT){
-                mAdapter = new MatchAdapter(mContext, recentMatches);
-                matchList.setAdapter(mAdapter);
-                return;
             }
         }
+        mAdapter = new MatchAdapter(mContext, recentMatches);
+        matchList.setAdapter(mAdapter);
 
     }
 
     /**
      * Adds match to adapter and notifies
+     *
      * @param newMatch New match to be added to adapter
      * @see MatchInfo
      */
     public static void addMatch(Match newMatch) {
+        recentMatches.add(newMatch);
         mAdapter.notifyDataSetChanged();
     }
 
@@ -526,16 +506,9 @@ public class Main extends AppCompatActivity {
             Log.d(TAG, "Error");
 //            Toast.makeText(this, R.string.lbl_set_fail, Toast.LENGTH_SHORT).show();
         } else if (requestCode == REQUEST_PLAYERS && resultCode == SUCCESS) {
-            Log.d(TAG, "returned from other players sucessfully");
+            Log.d(TAG, "returned from other players successfully");
 
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
-
-    //class made to go to layout to display the list of champions
-    public void gotoChampions(View source) {
-        Intent displayChamps = new Intent(Main.this, Champions.class);
-        startActivityForResult(displayChamps, 101);
-    }
-
 }

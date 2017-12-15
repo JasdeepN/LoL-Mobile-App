@@ -127,7 +127,7 @@ public class DatabaseHelperUtil implements DatabaseReference.CompletionListener{
     }
 
     public void getAllUsers(final OnGetDataListener listener){
-        mDatabaseRef.addValueEventListener(new ValueEventListener() {
+        mDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 listener.onSuccess(dataSnapshot);

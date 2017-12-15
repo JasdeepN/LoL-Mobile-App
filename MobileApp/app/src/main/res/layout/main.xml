@@ -55,20 +55,12 @@
         android:id="@+id/matches"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@+id/btnChampions"
+        android:layout_below="@+id/avail_button"
         android:scrollbarSize="3dp"
         android:scrollbarStyle="outsideOverlay"
         android:scrollbars="vertical"
         android:scrollingCache="true"
         android:smoothScrollbar="true"
         android:tooltipText="Fetching"/>
-
-    <Button
-        android:id="@+id/btnChampions"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/summoner_icon"
-        android:onClick="gotoChampions"
-        android:text="@string/display_champions"/>
 
 </android.widget.RelativeLayout>
