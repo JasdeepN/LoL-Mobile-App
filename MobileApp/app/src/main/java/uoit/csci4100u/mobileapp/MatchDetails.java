@@ -57,6 +57,7 @@ public class MatchDetails extends AppCompatActivity {
     int matchID;
 
     protected static Bitmap[] bitmapArray = new Bitmap[10];
+    protected static Bitmap[] pgiBitMapArray = new Bitmap[6];
     List<ImageView> iconView = new ArrayList<>();
     List<String> playerScore = new ArrayList<>();
     Participant playerID;
@@ -371,6 +372,8 @@ public class MatchDetails extends AppCompatActivity {
             Log.d("champIcon:start", "starting data dragon access");
         }
     }
+
+
 
 
 }

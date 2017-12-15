@@ -45,4 +45,6 @@
     <string name="tips_for">Tips for Playing %1$s</string>
     <string name="tips_against">Tips for Playing Against %1$s</string>
     <string name="txtKDA">KDA</string>
+    <string name="blue_team">Blue Team</string>
+    <string name="red_team">Red Team</string>
 </resources>

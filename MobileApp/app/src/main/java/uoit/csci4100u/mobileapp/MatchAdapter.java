@@ -246,4 +246,6 @@ public class MatchAdapter extends ArrayAdapter<Match> {
             Log.d("map:start", "starting data dragon access");
         }
     }
+
+
 }
