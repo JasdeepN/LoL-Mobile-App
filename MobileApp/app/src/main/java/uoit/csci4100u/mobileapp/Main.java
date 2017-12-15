@@ -24,6 +24,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DataSnapshot;
 
 import net.rithms.riot.api.endpoints.match.dto.Match;
+import net.rithms.riot.api.endpoints.match.dto.MatchList;
 import net.rithms.riot.api.endpoints.match.dto.MatchReference;
 import net.rithms.riot.api.endpoints.static_data.dto.ChampionList;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
@@ -82,6 +83,8 @@ public class Main extends AppCompatActivity {
     ToggleButton avail_button;
     static ImageView icon;
 
+    protected static MatchList matchRef;
+
     //the users summoner info
     protected static Summoner uSummoner;
     public static Platform locale;
@@ -106,19 +109,6 @@ public class Main extends AppCompatActivity {
         locUtil = new LocationUtil(this);
         setupLocAPI();
         setUpLayouts();
-
-        ListView getMatchDetails = (ListView) findViewById(R.id.matches);
-
-        getMatchDetails.setAdapter(mAdapter);
-
-        getMatchDetails.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-           @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-               Intent matchIntent = new Intent(Main.this, MatchDetails.class);
-               startActivity(matchIntent);
-            }
-        });
     }
 
     @Override
@@ -218,20 +208,24 @@ public class Main extends AppCompatActivity {
         avail_button = (ToggleButton) findViewById(R.id.avail_button);
         icon = (ImageView) findViewById(R.id.summoner_icon);
         matchList = (ListView) findViewById(R.id.matches);
-//        matchList.setAdapter(mAdapter);
 
-//        matchList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                Match item = (Match) adapterView.getItemAtPosition(i);
-////
-//                Intent intent = new Intent(Main.this, MatchDetailView.class);
-//                intent.putExtra("matchID", item.getGameId());
-////                //based on item add info to intent
-//                startActivity(intent);
-////                Log.d("clicked", item+"");
-//            }
-//        });
+        matchList.setAdapter(mAdapter);
+
+        matchList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Match item = (Match) adapterView.getItemAtPosition(i);
+//
+                Log.d("clicked", item.getGameId()+"");
+                Intent intent = new Intent(Main.this, MatchDetails.class);
+                intent.putExtra("matchID", i);
+//                //based on item add info to intent
+                startActivity(intent);
+            }
+        });
+
+
+
 
         avail_button.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -251,6 +245,10 @@ public class Main extends AppCompatActivity {
                 play_staus = toggleStatus(play_staus);
             }
         });
+    }
+
+    public static void setMatchRefList(MatchList refList){
+        matchRef = refList;
     }
 
 
@@ -492,7 +490,7 @@ public class Main extends AppCompatActivity {
         //initalize empty adapter
         Log.d("Main:setMatchList", "got recent matches");
         int count = 0;
-        int MATCH_COUNT = 3;
+        int MATCH_COUNT = 2;
         for (MatchReference x : matches) {
             if (count < MATCH_COUNT) {
                 Log.d("Match" + count, x.toString());

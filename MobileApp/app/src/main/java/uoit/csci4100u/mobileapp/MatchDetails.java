@@ -15,53 +15,68 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import uoit.csci4100u.mobileapp.tasks.ChampionIconTask;
+import uoit.csci4100u.mobileapp.tasks.MatchInfo;
 
 import static uoit.csci4100u.mobileapp.Main.champions;
+import static uoit.csci4100u.mobileapp.Main.recentMatches;
 
 /**
  * Created by wesley on 13/12/17.
  */
 
-public class MatchDetails extends AppCompatActivity{
-    String gameMode;
-    String gameType;
-    String blueTeam;
-    String redTeam;
-    String gameLength;
+public class MatchDetails extends AppCompatActivity {
 
-    List<Participant> players = new ArrayList<>();
-    List<String> teams = new ArrayList<>();
     Map<String, Champion> champList;
-
-    String player1;
-    String player2;
-    String player3;
-    String player4;
-    String player5;
-    String player6;
-    String player7;
-    String player8;
-    String player9;
-    String player10;
-
-    TextView tvPlayer1;
-    TextView tvPlayer2;
-    TextView tvPlayer3;
-    TextView tvPlayer4;
-    TextView tvPlayer5;
-    TextView tvPlayer6;
-    TextView tvPlayer7;
-    TextView tvPlayer8;
-    TextView tvPlayer9;
-    TextView tvPlayer10;
+    int matchID;
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.match_details);
+        Bundle extras = getIntent().getExtras();
+        matchID = extras.getInt("matchID");
+        Log.d("MatchDetailsFor", matchID+"");
+        setupLayout();
+
+    }
+
+    private void setupLayout() {
+        String gameMode;
+        String gameType;
+        String blueTeam;
+        String redTeam;
+        String gameLength;
+
+        Match CurrentMatch;
+
+        String player1;
+        String player2;
+        String player3;
+        String player4;
+        String player5;
+        String player6;
+        String player7;
+        String player8;
+        String player9;
+        String player10;
+
+        TextView tvPlayer1;
+        TextView tvPlayer2;
+        TextView tvPlayer3;
+        TextView tvPlayer4;
+        TextView tvPlayer5;
+        TextView tvPlayer6;
+        TextView tvPlayer7;
+        TextView tvPlayer8;
+        TextView tvPlayer9;
+        TextView tvPlayer10;
+        List<Participant> players;
+        List<String> teams;
+        players = new ArrayList<>();
+        teams = new ArrayList<>();
         champList = champions.getData();
 
         tvPlayer1 = (TextView) findViewById(R.id.txtPlayer1);
@@ -72,32 +87,31 @@ public class MatchDetails extends AppCompatActivity{
         tvPlayer6 = (TextView) findViewById(R.id.txtPlayer6);
         tvPlayer7 = (TextView) findViewById(R.id.txtPlayer7);
         tvPlayer8 = (TextView) findViewById(R.id.txtPlayer8);
-        tvPlayer9= (TextView) findViewById(R.id.txtPlayer9);
+        tvPlayer9 = (TextView) findViewById(R.id.txtPlayer9);
         tvPlayer10 = (TextView) findViewById(R.id.txtPlayer10);
 
 
+       CurrentMatch = recentMatches.get(matchID);
 
 
-        for (Match CurrentMatch: Main.recentMatches) {
+        CurrentMatch.getGameMode();
+        // Log.d("CURRENT TEAM: ", CurrentMatch.get);
+        CurrentMatch.getGameType();
+        CurrentMatch.getGameDuration();
 
-            CurrentMatch.getGameMode();
-           // Log.d("CURRENT TEAM: ", CurrentMatch.get);
-            CurrentMatch.getGameType();
-            CurrentMatch.getGameDuration();
-
-            players =  CurrentMatch.getParticipants();
+        players = CurrentMatch.getParticipants();
+        Log.d("current match", CurrentMatch.getGameId()+"");
 
 
-            //Game mode == ARAM,5V5,3V3, PVE
-            //Game type == ranked, normals, Draft
-            Log.d("GAME MODE:", CurrentMatch.getGameMode());
-            Log.d("GAME TYPE:", CurrentMatch.getGameType());
+        //Game mode == ARAM,5V5,3V3, PVE
+        //Game type == ranked, normals, Draft
+        Log.d("GAME MODE:", CurrentMatch.getGameMode());
+        Log.d("GAME TYPE:", CurrentMatch.getGameType());
 
-        }
 
         int player1ID = players.get(0).getChampionId();
         player1 = Integer.toString(player1ID);
-       // player1 = players.get(0).getChampionId();
+        // player1 = players.get(0).getChampionId();
         player2 = players.get(1).toString();
         player3 = players.get(2).toString();
         player4 = players.get(3).toString();
@@ -131,7 +145,7 @@ public class MatchDetails extends AppCompatActivity{
             for (Champion y : c) {
                 if (y.getId() == champId) {
                     playedChamp = y;
-                    new ChampionIconTask().execute(playedChamp.getName(), i+"");
+                    new ChampionIconTask().execute(playedChamp.getName(), i + "");
                     playerList[i] = playedChamp.getName();
 
                 }

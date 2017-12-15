@@ -41,6 +41,7 @@ public class GetMatches extends NetworkTask<Summoner, Integer, MatchList> {
 //        Log.d("matches", result.getMatches()+"");
         List<MatchReference> matches = result.getMatches();
         Main.setMatchList(matches);
+        Main.setMatchRefList(result);
     }
 
 
