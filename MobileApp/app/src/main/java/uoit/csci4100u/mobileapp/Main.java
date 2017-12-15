@@ -511,10 +511,4 @@ public class Main extends AppCompatActivity {
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
-
-    public void temp(View v){
-        Intent x = new Intent(Main.this, ChampionDetails.class);
-        x.putExtra("champID", 24);
-        startActivity(x);
-    }
 }

@@ -20,8 +20,6 @@ import android.widget.ToggleButton;
 
 import com.google.firebase.database.DataSnapshot;
 
-import net.rithms.riot.api.RiotApiException;
-import net.rithms.riot.api.endpoints.static_data.dto.Champion;
 import net.rithms.riot.api.endpoints.summoner.dto.Summoner;
 
 import java.io.BufferedInputStream;
@@ -32,13 +30,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import uoit.csci4100u.mobileapp.tasks.ProfileIconTask;
-import uoit.csci4100u.mobileapp.util.NetworkTask;
 import uoit.csci4100u.mobileapp.util.OnGetDataListener;
 
 import static uoit.csci4100u.mobileapp.Main.current_version;
 import static uoit.csci4100u.mobileapp.Main.dbHelper;
-import static uoit.csci4100u.mobileapp.Main.locale;
 
 public class Players extends AppCompatActivity {
 
@@ -144,7 +139,7 @@ public class Players extends AppCompatActivity {
             // Lookup view for data population
             TextView sumName = (TextView) convertView.findViewById(R.id.sum_name);
             TextView sumLevel = (TextView) convertView.findViewById(R.id.sum_level);
-            ImageView icon = (ImageView) convertView.findViewById(R.id.icon);
+            ImageView icon = (ImageView) convertView.findViewById(R.id.detail_champ_icon);
             ImageView sum_icon = (ImageView) convertView.findViewById(R.id.sum_icon);
             // Populate the data into the template view using the data object
 //            icons.add(sum_icon);

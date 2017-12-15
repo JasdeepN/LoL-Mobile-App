@@ -1,13 +1,17 @@
 package uoit.csci4100u.mobileapp;
 
-import android.app.FragmentTransaction;
-import android.content.res.Configuration;
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -17,18 +21,23 @@ import net.rithms.riot.api.endpoints.match.dto.Match;
 import net.rithms.riot.api.endpoints.match.dto.Participant;
 import net.rithms.riot.api.endpoints.match.dto.ParticipantStats;
 import net.rithms.riot.api.endpoints.static_data.dto.Champion;
+import net.rithms.riot.api.endpoints.static_data.dto.Image;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+import java.lang.reflect.Array;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import uoit.csci4100u.mobileapp.tasks.ChampionIconTask;
 
 import static uoit.csci4100u.mobileapp.Main.champions;
+import static uoit.csci4100u.mobileapp.Main.current_version;
 import static uoit.csci4100u.mobileapp.Main.mContext;
 import static uoit.csci4100u.mobileapp.Main.recentMatches;
 
@@ -41,16 +50,17 @@ public class MatchDetails extends AppCompatActivity {
     Map<String, Champion> champList;
     static protected final String BASE_DRAGON_URL = "http://ddragon.leagueoflegends.com/cdn/";
     int matchID;
-    static MatchAdapter mAdapter;
-    List<ImageView> champIcons = new ArrayList<>();
+    Bitmap[] bitmapArray = new Bitmap[10];
+    List<ImageView> iconView = new ArrayList<>();
     List<String> playerScore = new ArrayList<>();
     ParticipantStats playerStats;
     final static String win = "win";
     final static String lose = "lose";
-    ArrayAdapter<String> blueTeam;
+//    KDAAdapterLeft blueTeam;
+ArrayAdapter<String> blueTeam;
     ArrayAdapter<String> redTeam;
-    String[] blueTeamArray = new String [5];
-    String[] redTeamArray = new String [5];
+    ArrayList<String> blueTeamArray = new ArrayList<>();
+    ArrayList<String> redTeamArray = new ArrayList<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,9 +71,6 @@ public class MatchDetails extends AppCompatActivity {
         matchID = extras.getInt("matchID");
         Log.d("MatchDetailsFor", matchID+"");
         setupLayout();
-
-        mAdapter = new MatchAdapter(mContext, recentMatches);
-
     }
 
     private void setupLayout() {
@@ -89,21 +96,30 @@ public class MatchDetails extends AppCompatActivity {
             Log.d("WHEN DOES THIS CRASH: ", Integer.toString(i));
             Participant x = players.get(i);
             Log.d("SETTING PARTICIPANT ", Integer.toString(i));
-            int champId = x.getChampionId();
+            final int champId = x.getChampionId();
             //set this in case want to get more data from champ later
             Champion playedChamp;
             Log.d("champ:ID", champId + "");
             for (Champion y : c) {
                 if (y.getId() == champId) {
                     playedChamp = y;
-                    try {
-                        champIcons.get(i).setImageBitmap(new ChampionIconTask().execute(playedChamp
-                                .getName(), i + "").get());
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    }
+                    new ChampionIcon().execute(playedChamp.getName(), i + "");
+                    iconView.get(i).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent details = new Intent(MatchDetails.this, ChampionDetails.class);
+                            details.putExtra("champID", champId);
+                            startActivity(details);
+                        }
+                    });
+//                    try {
+//                        champIcons.get(i).setImageBitmap(new ChampionIconTask().execute(playedChamp
+//                                .getName(), i + "").get());
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    } catch (ExecutionException e) {
+//                        e.printStackTrace();
+//                    }
                     playerList[i] = playedChamp.getName();
                 }
             }
@@ -120,7 +136,7 @@ public class MatchDetails extends AppCompatActivity {
 
             player = playerList[i] + " " + playerStats;
 
-            blueTeamArray[i] = player;
+            blueTeamArray.add(player);
         }
 
         for (int j = 5; j < 10; j++)
@@ -133,11 +149,14 @@ public class MatchDetails extends AppCompatActivity {
 
             player = playerList[j] + " " + playerStats;
 
-           redTeamArray[j-5] = player;
+           redTeamArray.add(player);
         }
 
-        blueTeam = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,blueTeamArray);
+        ArrayList temp = new ArrayList<>();
+//        temp.addAll(blueTeamArray);
+//        blueTeam = new KDAAdapterLeft(this, blueTeamArray);
         redTeam = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, redTeamArray);
+        blueTeam = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, blueTeamArray);
 
         ListView blueListView = (ListView) findViewById(R.id.lvBlueTeam);
         blueListView.setAdapter(blueTeam);
@@ -199,6 +218,41 @@ public class MatchDetails extends AppCompatActivity {
 
     }
 
+    public class KDAAdapterLeft extends ArrayAdapter<String> {
+        ArrayList<ImageView> team_icon = new ArrayList<>();
+        public KDAAdapterLeft(Context context, List<String> users) {
+            super(context, 0, users);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            // Get the data item for this position
+            String spell = getItem(position);
+            // Check if an existing view is being reused, otherwise inflate the view
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.detail_kda_item_left, parent,
+                        false);
+            }
+            // Lookup view for data population
+            TextView kda = (TextView) convertView.findViewById(R.id.kda);
+            ImageView icon = (ImageView) convertView.findViewById(R.id.detail_champ_icon);
+            team_icon.add(icon);
+            // Populate the data into the template view using the data object
+            kda.setText(spell);
+//            icon.setImageBitmap(bitmapArray[position]);
+//            Log.d("setting imgage", bitmapArray[position].toString());
+//            icon.setImageBitmap(new ChampionIconTask().execute(playedChamp.getName(), i + "").get());
+//            spellDesc.setText(spell.getDescription());
+            // Return the completed view to render on screen
+            return convertView;
+        }
+
+        public void setIcon(int i, Bitmap bm){
+            Log.d("set Icon", i+"");
+            team_icon.get(i).setImageBitmap(bm);
+        }
+    }
+
     public void addImages()
     {
         ImageView champ0 = (ImageView) findViewById(R.id.icon1);
@@ -211,17 +265,72 @@ public class MatchDetails extends AppCompatActivity {
         ImageView champ7 = (ImageView) findViewById(R.id.icon8);
         ImageView champ8 = (ImageView) findViewById(R.id.icon9);
         ImageView champ9 = (ImageView) findViewById(R.id.icon10);
-        champIcons.add(champ0);
-        champIcons.add(champ1);
-        champIcons.add(champ2);
-        champIcons.add(champ3);
-        champIcons.add(champ4);
-        champIcons.add(champ5);
-        champIcons.add(champ6);
-        champIcons.add(champ7);
-        champIcons.add(champ8);
-        champIcons.add(champ9);
+        iconView.add(champ0);
+        iconView.add(champ1);
+        iconView.add(champ2);
+        iconView.add(champ3);
+        iconView.add(champ4);
+        iconView.add(champ5);
+        iconView.add(champ6);
+        iconView.add(champ7);
+        iconView.add(champ8);
+        iconView.add(champ9);
     }
+
+    public class ChampionIcon extends AsyncTask<String, Void, Bitmap> {
+        // http://ddragon.leagueoflegends.com/cdn/6.24.1/img/champion/Aatrox.png
+        static protected final String BASE_DRAGON_URL = "http://ddragon.leagueoflegends.com/cdn/";
+
+        int i;
+        @Override
+        protected Bitmap doInBackground(String... input) {
+            Bitmap bm = null;
+            i = Integer.parseInt(input[1]);
+            try {
+                String champNameFormatted = input[0].replace(" ", "");
+                if (input[0].contains("'")){
+                    String temp0 = input[0].replace("'", "");
+                    String temp = temp0.substring(0, 1);
+                    String temp2 = temp0.substring(1).toLowerCase();
+                    champNameFormatted = temp+temp2;
+                }
+
+                String tempUrl = BASE_DRAGON_URL + current_version + "/img/champion/" +
+                        champNameFormatted + ".png";
+                Log.d("DataDragon:lookup", tempUrl + "");
+                URL url = new URL(tempUrl);
+
+                HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.connect();
+                InputStream is = urlConnection.getInputStream();
+                BufferedInputStream bis = new BufferedInputStream(is);
+                bm = BitmapFactory.decodeStream(bis);
+                bis.close();
+                is.close();
+            } catch (java.net.MalformedURLException me) {
+                Log.d("URL ERROR", me + "");
+            } catch (java.io.IOException ie) {
+                Log.d("IO ERROR", ie + "");
+            }
+            return bm;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            Log.d("champIcon:end", "finished data dragon access");
+//        MatchAdapter.setChampIcon(result, i);
+            bitmapArray[i] = result;
+
+//            blueTeam.setIcon(i, result);
+            iconView.get(i).setImageBitmap(result);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            Log.d("champIcon:start", "starting data dragon access");
+        }
+    }
+
 
 }
 

@@ -50,6 +50,7 @@ public class ChampionDetails extends AppCompatActivity {
         setContentView(R.layout.champion_details);
         Bundle extras = getIntent().getExtras();
         champID = extras.getInt("champID");
+        Log.d("received", champID+"");
         champMap = champions.getData();
         Champion currentChamp= null;
         Collection<Champion> c = champMap.values();
