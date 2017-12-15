@@ -1,17 +1,22 @@
 package uoit.csci4100u.mobileapp;
 
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateUtils;
 import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -50,15 +55,21 @@ public class MatchDetails extends AppCompatActivity {
     Map<String, Champion> champList;
     static protected final String BASE_DRAGON_URL = "http://ddragon.leagueoflegends.com/cdn/";
     int matchID;
-    Bitmap[] bitmapArray = new Bitmap[10];
+
+    protected static Bitmap[] bitmapArray = new Bitmap[10];
     List<ImageView> iconView = new ArrayList<>();
     List<String> playerScore = new ArrayList<>();
-    ParticipantStats playerStats;
+    Participant playerID;
     final static String win = "win";
     final static String lose = "lose";
 //    KDAAdapterLeft blueTeam;
-ArrayAdapter<String> blueTeam;
+    ArrayAdapter<String> blueTeam;
     ArrayAdapter<String> redTeam;
+    protected static List<String> KDA = new ArrayList<>();
+    protected static List<String> name = new ArrayList<>();
+    public static List<Participant> redParticiant = new ArrayList<>();
+    public static   List<Participant> blueParticiant = new ArrayList<>();
+
     ArrayList<String> blueTeamArray = new ArrayList<>();
     ArrayList<String> redTeamArray = new ArrayList<>();
 
@@ -83,7 +94,7 @@ ArrayAdapter<String> blueTeam;
         Boolean didBlueWin;
         String player, playerStats;
 
-        Match CurrentMatch;
+        final Match CurrentMatch;
         CurrentMatch = recentMatches.get(matchID);
 
         players = CurrentMatch.getParticipants();
@@ -93,10 +104,10 @@ ArrayAdapter<String> blueTeam;
         String[] playerList = new String[10];
         Collection<Champion> c = champList.values();
         for (int i = 0; i < 10; i++) {
-            Log.d("WHEN DOES THIS CRASH: ", Integer.toString(i));
             Participant x = players.get(i);
-            Log.d("SETTING PARTICIPANT ", Integer.toString(i));
+
             final int champId = x.getChampionId();
+
             //set this in case want to get more data from champ later
             Champion playedChamp;
             Log.d("champ:ID", champId + "");
@@ -137,6 +148,9 @@ ArrayAdapter<String> blueTeam;
             player = playerList[i] + " " + playerStats;
 
             blueTeamArray.add(player);
+            KDA.add(playerStats);
+            name.add(playerList[i]);
+            blueParticiant.add(CurrentMatch.getParticipants().get(i));
         }
 
         for (int j = 5; j < 10; j++)
@@ -148,6 +162,10 @@ ArrayAdapter<String> blueTeam;
                     +Integer.toString(CurrentMatch.getParticipants().get(j).getStats().getAssists());
 
             player = playerList[j] + " " + playerStats;
+
+            redParticiant.add(CurrentMatch.getParticipants().get(j));
+            KDA.add(playerStats);
+            name.add(playerList[j]);
 
            redTeamArray.add(player);
         }
@@ -161,9 +179,35 @@ ArrayAdapter<String> blueTeam;
         ListView blueListView = (ListView) findViewById(R.id.lvBlueTeam);
         blueListView.setAdapter(blueTeam);
 
+
+        blueListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                String item = (String) adapterView.getItemAtPosition(i);
+//
+                Log.d("clicked", item + "");
+                Intent intent = new Intent(MatchDetails.this, PlayerMatchDetails.class);
+                intent.putExtra("ParticipantID",blueParticiant.get(i).getParticipantId());
+//                //based on item add info to intent
+                startActivity(intent);
+            }
+        });
+
         ListView redListView = (ListView) findViewById(R.id.lvRedTeam);
         redListView.setAdapter(redTeam);
-
+        redListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                //Match item = (Match) adapterView.getItemAtPosition(i);
+//
+                //Log.d("clicked", item.getGameId() + "");
+                Intent intent = new Intent(MatchDetails.this, PlayerMatchDetails.class);
+                intent.putExtra("ParticipantID", redParticiant.get(i).getParticipantId());
+                intent.putExtra("MatchID", i);
+//                //based on item add info to intent
+                startActivity(intent);
+            }
+        });
 
         TextView tvGameType;
         TextView tvGameMode;
@@ -185,9 +229,6 @@ ArrayAdapter<String> blueTeam;
         String format = getBaseContext().getResources().getString(R.string.match_time);
         String timex = DateUtils.formatElapsedTime(gameLength);
         String time = String.format(format, timex);
-
-
-
 
 
         //Game mode == ARAM,5V5,3V3, PVE

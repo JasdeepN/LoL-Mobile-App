@@ -55,6 +55,7 @@ public class MatchAdapter extends ArrayAdapter<Match> {
     Map<String, Champion> champList;
 
 
+
     public MatchAdapter(@NonNull Context context, @NonNull ArrayList<Match> objects) {
         super(context, 0, objects);
         this.context = context;
