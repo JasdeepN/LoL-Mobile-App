@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MobileApp</string>
+    <string name="app_name">League Assistant App</string>
     <string name="auth_failed">Authentication Failed; Please try again.</string>
     <string name="auth_success">Authenticated; Welcome.</string>
     <string name="login_button">Login</string>
