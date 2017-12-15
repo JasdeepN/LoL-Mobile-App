@@ -40,6 +40,8 @@
         <activity android:name=".MatchDetails">
 
         </activity>
+
+
     </application>
 
 </manifest>

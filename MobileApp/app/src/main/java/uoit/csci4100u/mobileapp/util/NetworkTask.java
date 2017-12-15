@@ -20,7 +20,7 @@ public abstract class NetworkTask<Void, progress, result> extends AsyncTask<Void
         result> {
 
     //permanent key
-    static final private String API_KEY = "RGAPI-4d53deae-b96e-486f-922a-ab40334fa747";
+    static final private String API_KEY = "RGAPI-1d8e63b1-de1c-40b0-aa22-d19c1f86a7f3";
     // -- temp key replace this one --
 //    static final private String API_KEY = "RGAPI-089296c3-3d3a-48b3-9ab1-0c0d6d3953d0";
     static protected final String BASE_DRAGON_URL = "http://ddragon.leagueoflegends.com/cdn/";

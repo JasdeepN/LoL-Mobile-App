@@ -95,12 +95,12 @@
         android:id="@+id/team_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/txtPlayer5"
-        android:layout_marginLeft="32dp"
+        android:layout_below="@+id/txtPlayer4"
         android:layout_marginTop="192dp"
         android:orientation="horizontal"
         android:padding="8dp"
-       >
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/icon10"
@@ -215,8 +215,9 @@
         android:id="@+id/txtPlayer6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/txtRedTeam"
         android:layout_below="@+id/txtRedTeam"
+        android:layout_marginEnd="28dp"
+        android:layout_toStartOf="@+id/txtPlayer6Stats"
         android:text="TextView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.628"
@@ -229,7 +230,7 @@
         android:id="@+id/txtPlayer7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/txtPlayer6"
+        android:layout_alignEnd="@+id/txtRedTeam"
         android:layout_below="@+id/txtPlayer6"
         android:text="TextView"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -243,8 +244,8 @@
         android:id="@+id/txtPlayer8"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_above="@+id/txtPlayer9"
         android:layout_alignStart="@+id/txtPlayer7"
-        android:layout_below="@+id/txtPlayer7"
         android:text="TextView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintHorizontal_bias="0.628"
@@ -298,11 +299,138 @@
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/txtBlueTeam"
         android:layout_alignBottom="@+id/txtBlueTeam"
-        android:layout_alignEnd="@+id/team_1"
-        android:layout_marginEnd="14dp"
+        android:layout_alignEnd="@+id/txtPlayer6"
         android:text="@string/txtRedTeam"
         app:layout_constraintHorizontal_bias="0.049"
         app:layout_constraintRight_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtKDA"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/match_map"
+        android:layout_marginEnd="62dp"
+        android:layout_toStartOf="@+id/txtRedTeam"
+        android:text="@string/txtKDA" />
+
+    <TextView
+        android:id="@+id/txtPlayer1Stats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/txtPlayer1"
+        android:layout_alignBottom="@+id/txtPlayer1"
+        android:layout_alignStart="@+id/txtPlayer2Stats"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/txtPlayer2Stats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/txtPlayer3Stats"
+        android:layout_below="@+id/txtPlayer1Stats"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/txtPlayer3Stats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/txtPlayer4Stats"
+        android:layout_alignStart="@+id/txtPlayer4Stats"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/txtPlayer4Stats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/team_2"
+        android:layout_alignStart="@+id/txtKDA"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/txtPlayer5Stats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/txtPlayer4Stats"
+        android:layout_below="@+id/txtPlayer4Stats"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/txtPlayer6Stats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/txtPlayer7Stats"
+        android:layout_below="@+id/txtRedTeam"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/txtPlayer7Stats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/txtPlayer7"
+        android:layout_alignBottom="@+id/txtPlayer7"
+        android:layout_alignStart="@+id/txtPlayer8Stats"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/txtPlayer8Stats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/txtPlayer9Stats"
+        android:layout_below="@+id/txtPlayer7"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/txtPlayer9Stats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/txtPlayer10Stats"
+        android:layout_alignStart="@+id/txtPlayer10Stats"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/txtPlayer10Stats"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/team_1"
+        android:layout_below="@+id/txtPlayer9"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/txtDescribeBlueTeam"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/txtPlayer10"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="17dp"
+        android:text="Blue Team" />
+
+    <TextView
+        android:id="@+id/DescribeRedReam"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/team_1"
+        android:layout_marginTop="24dp"
+        android:layout_toEndOf="@+id/txtPlayer5Stats"
+        android:text="Red Team" />
+
+    <TextView
+        android:id="@+id/txtBlueTeamWin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="19dp"
+        android:layout_toEndOf="@+id/DescribeRedReam"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/txtRedTeamWin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/DescribeRedReam"
+        android:layout_alignBottom="@+id/DescribeRedReam"
+        android:layout_alignStart="@+id/txtBlueTeamWin"
+        android:text="TextView" />
+
 
 </android.widget.RelativeLayout>
