@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
-String playServicesVersion = '11.+'
+String playServicesVersion = '12.+'
 
 
 android {
     compileSdkVersion 26
-    buildToolsVersion "27.0.0"
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "uoit.csci4100u.mobileapp"
         minSdkVersion 23
