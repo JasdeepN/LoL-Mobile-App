@@ -20,7 +20,6 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
 import com.google.firebase.database.DataSnapshot;
 
 import net.rithms.riot.api.endpoints.match.dto.Match;
@@ -41,12 +40,9 @@ import uoit.csci4100u.mobileapp.tasks.GetMatches;
 import uoit.csci4100u.mobileapp.tasks.MatchInfo;
 import uoit.csci4100u.mobileapp.tasks.ProfileIconTask;
 import uoit.csci4100u.mobileapp.util.DatabaseHelperUtil;
-import uoit.csci4100u.mobileapp.util.LocationUtil;
 import uoit.csci4100u.mobileapp.util.NetworkTask;
 import uoit.csci4100u.mobileapp.util.OnGetDataListener;
 import uoit.csci4100u.mobileapp.util.PermissionChecker;
-
-import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
 /**
  * Main method for App, handles setting up and receiving Activities/Results
@@ -56,7 +52,6 @@ import static android.provider.AlarmClock.EXTRA_MESSAGE;
  *
  * @see PermissionChecker#getPermissions()          - to check is permissions are granted, if not asks for
  * them
- * @see LocationUtil                                - updates location information
  * @see uoit.csci4100u.mobileapp.util.NetworkTask   - generic abstract class to handle most of the
  * Async network tasks
  * @see DatabaseHelperUtil                          - handles Firebase read and write
@@ -90,10 +85,8 @@ public class Main extends AppCompatActivity {
     public static Platform locale;
 
     //New Location util
-    protected LocationUtil locUtil;
 
     protected static DatabaseHelperUtil dbHelper;
-    protected GoogleApiClient locApi;
 
     private static Menu menu;
     static protected MatchAdapter mAdapter;
@@ -106,7 +99,6 @@ public class Main extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         mContext = getApplicationContext();
-        locUtil = new LocationUtil(this);
         recentMatches = new ArrayList<>();
         extras = getIntent().getExtras();
         mUUID = extras.getString("UUID");
@@ -125,13 +117,8 @@ public class Main extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        setupLocAPI();
         setUpLayouts();
 
-
-
-        locApi.connect();
-        locUtil.setLocAPI(locApi);
 
     }
 
@@ -160,7 +147,6 @@ public class Main extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        locApi.disconnect();
         super.onStop();
     }
 
@@ -184,16 +170,7 @@ public class Main extends AppCompatActivity {
         updateUI();
     }
 
-    /**
-     * sets up Google location API
-     */
-    private void setupLocAPI() {
-        locApi = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(locUtil)
-                .addOnConnectionFailedListener(locUtil)
-                .build();
-    }
+
 
     /**
      * method to set database helper in Main method
@@ -357,12 +334,9 @@ public class Main extends AppCompatActivity {
 
     //TODO: remove this, this is a temporary onCLick method
     public void checkConnection() {
-        if (locUtil.getLocation() != null) {
-            Log.d(TAG, locUtil.getLocation().toString());
-            Toast.makeText(this, locUtil.getLocation().toString(), Toast.LENGTH_SHORT).show();
-        } else {
+
             Log.d(TAG, "something went wrong");
-        }
+
     }
 
     /**
@@ -412,23 +386,21 @@ public class Main extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.refresh_ui:
-                onRefreshClick();
-                item.setEnabled(false);
-                refreshAvail = false;
-                return true;
-            case R.id.check_conn:
-                checkConnection();
-                return true;
-            case R.id.logout_option:
-                logout();
-                return true;
-            case R.id.other_players:
-                launchOtherPlayers();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        final int menuId = item.getItemId();
+
+        if (menuId == R.id.refresh_ui) {
+            onRefreshClick();
+            item.setEnabled(false);
+            refreshAvail = false;
+            return true;
+        } else if (menuId == R.id.logout_option) {
+            logout();
+            return true;
+        } else if (menuId == R.id.other_players) {
+            launchOtherPlayers();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
         }
     }
 
@@ -444,16 +416,17 @@ public class Main extends AppCompatActivity {
      * Updates UI
      */
     private static void updateUI() {
-        printSummonerToScreen(uSummoner);
-        String welcome_format =  mContext.getResources().getString(R.string.welcome_back);
-        String welcome_message = String.format(welcome_format, uSummoner.getName());
-        welcome_lbl.setText(welcome_message);
-        getPlayStatus();
-        mAdapter = new MatchAdapter(mContext, recentMatches);
-        new ProfileIconTask().execute(uSummoner.getProfileIconId() + "");
-        new GetMatches().execute(uSummoner);
-
-        refreshAvail = false;
+        if (refreshAvail) {
+            printSummonerToScreen(uSummoner);
+            String welcome_format = mContext.getResources().getString(R.string.welcome_back);
+            String welcome_message = String.format(welcome_format, uSummoner.getName());
+            welcome_lbl.setText(welcome_message);
+            getPlayStatus();
+            mAdapter = new MatchAdapter(mContext, recentMatches);
+            new ProfileIconTask().execute(uSummoner.getProfileIconId() + "");
+            new GetMatches().execute(uSummoner);
+            refreshAvail = false;
+        }
     }
 
     /**
