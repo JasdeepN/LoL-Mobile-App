@@ -3,6 +3,7 @@ package uoit.csci4100u.mobileapp;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.CountDownTimer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.database.DataSnapshot;
 
 import net.rithms.riot.api.endpoints.match.dto.Match;
@@ -71,7 +71,7 @@ public class Main extends AppCompatActivity {
 
     //current game version
     public static String current_version;
-    static Context mContext;
+    public static Context mContext;
     Bundle extras;
      static TextView summoner_info;
     static TextView welcome_lbl;
@@ -110,7 +110,7 @@ public class Main extends AppCompatActivity {
         Log.d("version received", current_version + "");
 
         try {
-            champions = new ChampionListTask().execute(reigon).get();
+            champions = new ChampionListTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,reigon).get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -129,6 +129,7 @@ public class Main extends AppCompatActivity {
 
     @Override
     protected void onStart() {
+        mAdapter = new MatchAdapter(mContext, recentMatches);
         super.onStart();
     }
 
@@ -422,9 +423,8 @@ public class Main extends AppCompatActivity {
             String welcome_message = String.format(welcome_format, uSummoner.getName());
             welcome_lbl.setText(welcome_message);
             getPlayStatus();
-            mAdapter = new MatchAdapter(mContext, recentMatches);
-            new ProfileIconTask().execute(uSummoner.getProfileIconId() + "");
-            new GetMatches().execute(uSummoner);
+            new ProfileIconTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,uSummoner.getProfileIconId() + "");
+            new GetMatches().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, uSummoner);
             refreshAvail = false;
         }
     }
@@ -462,7 +462,9 @@ public class Main extends AppCompatActivity {
         for (MatchReference x : matches) {
             if (count < MATCH_COUNT) {
                 Log.d("Match" + count, x.toString());
-                new MatchInfo().execute(x.getGameId());
+//                new MatchInfo().execute(x.getGameId());
+                new MatchInfo().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, x.getGameId());
+
                 count++;
             }
         }
